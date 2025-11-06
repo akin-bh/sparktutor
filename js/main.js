@@ -223,8 +223,7 @@ function selectAnimation(type) {
         'airplanes': 'test_animations/how_airplanes_fly.html',
         'projectile': 'test_animations/projectile_motion.html',
         'moon': 'test_animations/phases_of_moon.html',
-        'integration': 'test_animations/integration_area_under_curve.html',
-        'nepal': 'test_animations/nepal_heritage.html'
+        'integration': 'test_animations/integration_area_under_curve.html'
     };
 
     const route = routeMap[type];
