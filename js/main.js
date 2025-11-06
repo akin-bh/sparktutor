@@ -31,7 +31,7 @@ function executeFunction(functionName, args) {
             // Show unified animation iframe and point it to ladder route
             const whiteW = document.getElementById('whiteboardEmpty'); if (whiteW) whiteW.style.display = 'none';
             const animContainer = document.getElementById('animationContainer'); if (animContainer) animContainer.classList.remove('hidden');
-            const iframe = document.getElementById('animationIframe'); if (iframe && iframe.src.indexOf('/ladder_safety') === -1) iframe.src = '/ladder_safety';
+            const iframe = document.getElementById('animationIframe'); if (iframe && iframe.src.indexOf('ladder_safety') === -1) iframe.src = 'test_animations/ladder_safety.html';
             document.querySelectorAll('.animation-option').forEach(option => option.classList.remove('active'));
             const ladderOpt2 = document.getElementById('ladderOption'); if (ladderOpt2) ladderOpt2.classList.add('active');
             logFunctionCall('show_ladder_animation', args, 'Ladder animation shown');
@@ -47,7 +47,7 @@ function executeFunction(functionName, args) {
         case 'show_photosynthesis_animation':
             const whiteP = document.getElementById('whiteboardEmpty'); if (whiteP) whiteP.style.display = 'none';
             const animContainerP = document.getElementById('animationContainer'); if (animContainerP) animContainerP.classList.remove('hidden');
-            const iframeP = document.getElementById('animationIframe'); if (iframeP && iframeP.src.indexOf('/photosynthesis') === -1) iframeP.src = '/photosynthesis';
+            const iframeP = document.getElementById('animationIframe'); if (iframeP && iframeP.src.indexOf('photosynthesis') === -1) iframeP.src = 'test_animations/photosynthesis.html';
             document.querySelectorAll('.animation-option').forEach(option => option.classList.remove('active'));
             const photoOpt2 = document.getElementById('photosynthesisOption'); if (photoOpt2) photoOpt2.classList.add('active');
             setTimeout(() => {
@@ -131,7 +131,7 @@ function executeFunction(functionName, args) {
 function sendMessageToLadder(message) {
     // Post a message to the active animation iframe when it is showing ladder
     const iframe = document.getElementById('animationIframe');
-    if (iframe && iframe.contentWindow && iframe.src && iframe.src.includes('/ladder')) {
+    if (iframe && iframe.contentWindow && iframe.src && iframe.src.includes('ladder')) {
         iframe.contentWindow.postMessage(message, '*');
         log(`Sent message to ladder: ${JSON.stringify(message)}`);
     } else {
@@ -153,7 +153,7 @@ function sendMessageToPhotosynthesis(message) {
         if (currentIframe && currentIframe.contentWindow && currentIframe.contentDocument) {
             try {
                 // Only send if the iframe is currently pointing at the photosynthesis page
-                if (!currentIframe.src || !currentIframe.src.includes('/photosynthesis')) {
+                if (!currentIframe.src || !currentIframe.src.includes('photosynthesis')) {
                     console.log('🔍 animationIframe is not the photosynthesis page; aborting send');
                     return false;
                 }
@@ -215,16 +215,16 @@ function selectAnimation(type) {
     const white = document.getElementById('whiteboardEmpty'); if (white) white.style.display = 'none';
     const iframe = document.getElementById('animationIframe');
     const container = document.getElementById('animationContainer');
-    // Map animation keys to routes
+    // Map animation keys to relative file paths for GitHub Pages
     const routeMap = {
-        'ladder': '/ladder_safety',
-        'photosynthesis': '/photosynthesis',
-        'tree_height': '/tree_height',
-        'airplanes': '/how_airplanes_fly',
-        'projectile': '/projectile_motion',
-        'moon': '/phases_of_moon',
-        'integration': '/integration_area_under_curve',
-        'nepal': '/nepal_heritage'
+        'ladder': 'test_animations/ladder_safety.html',
+        'photosynthesis': 'test_animations/photosynthesis.html',
+        'tree_height': 'test_animations/tree_height.html',
+        'airplanes': 'test_animations/how_airplanes_fly.html',
+        'projectile': 'test_animations/projectile_motion.html',
+        'moon': 'test_animations/phases_of_moon.html',
+        'integration': 'test_animations/integration_area_under_curve.html',
+        'nepal': 'test_animations/nepal_heritage.html'
     };
 
     const route = routeMap[type];
