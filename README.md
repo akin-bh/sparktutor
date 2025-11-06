@@ -11,7 +11,7 @@ A voice-controlled interactive learning platform built with OpenAI's Realtime AP
 - **Real-time Communication**: WebRTC audio processing and iframe control
 
 ### Architecture
-![Hackathon Architecture](Hackathon%20architecture.drawio.png)
+![System Architecture](system%20architecture%20diagram.jpg)
 
 - **Backend**: Flask server with OpenAI Realtime API integration
 - **Frontend**: Vanilla JavaScript with WebRTC for real-time audio
