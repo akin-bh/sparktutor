@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🌳 Tree Height - Pythagorean Theorem & Similar Triangles!</title>
+    <link rel="stylesheet" href="../css/style.css">
+  <style>
+    * { 
+      box-sizing: border-box; 
+      margin: 0;
+      padding: 0;
+    }
+    
+    body { 
+      font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', Arial, sans-serif;
+      background: linear-gradient(to bottom, #87CEEB, #98FB98);
+      color: #333;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .container {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      height: 100vh;
+      gap: 15px;
+      padding: 15px;
+    }
+    
+    .controls {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+    
+    h1 {
+      font-size: 24px;
+      color: #228B22;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .control-group {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+    
+    .control-group h3 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .slider-container {
+      margin: 15px 0;
+    }
+    
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #ddd;
+      outline: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #228B22;
+      cursor: pointer;
+    }
+    
+    .method-selector {
+      display: flex;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    
+    .method-btn {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #228B22;
+      background: white;
+      color: #228B22;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+    
+    .method-btn.active {
+      background: #228B22;
+      color: white;
+    }
+    
+    .calculation-box {
+      background: #e8f5e9;
+      border: 2px solid #4caf50;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 15px 0;
+    }
+    
+    .calculation-box h4 {
+      color: #2e7d32;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    
+    .formula {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+      margin: 8px 0;
+      text-align: center;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .stat-card {
+      background: white;
+      border: 2px solid #228B22;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+    
+    .stat-card .label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    
+    .stat-card .value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #228B22;
+    }
+    
+    .animation-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    
+    .info-overlay {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.95);
+      padding: 10px 20px;
+      border-radius: 15px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      font-size: 14px;
+      font-weight: bold;
+      text-align: center;
+      max-width: 80%;
+    }
+    
+    .tip-box {
+      background: #fff3e0;
+      border-left: 4px solid #ff9800;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    
+    .tip-box h4 {
+      color: #f57c00;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .tip-box p {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #555;
+    }
+    
+    .sun-indicator {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 215, 0, 0.9);
+      padding: 10px;
+      border-radius: 50%;
+      font-size: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    /* small consistent topbar for animations */
+    .anim-topbar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.92);
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      z-index: 30;
+      font-weight: 700;
+    }
+    .anim-topbar .anim-title { color: #228B22; font-size: 14px; }
+    .anim-topbar .anim-controls { display:flex; gap:8px; align-items:center; }
+    .anim-topbar .mini-btn { background:#f3f4f6; border:none; padding:8px 10px; border-radius:8px; cursor:pointer; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="controls">
+    <h1>🌳 Tree Height Calculator</h1>
+    
+    <div class="control-group">
+      <h3>📏 Measurement Setup</h3>
+      
+      <div class="method-selector">
+        <button class="method-btn active" onclick="setMethod('shadow')">🌞 Shadow Method</button>
+        <button class="method-btn" onclick="setMethod('angle')">📐 Angle Method</button>
+      </div>
+      
+      <div class="slider-container">
+        <div class="slider-label">
+          <span>🧍 Your Height</span>
+          <span id="person-height-value">5.5 ft</span>
+        </div>
+        <input type="range" id="person-height" min="4" max="7" value="5.5" step="0.1">
+      </div>
+      
+      <div class="slider-container">
+        <div class="slider-label">
+          <span id="distance-label">📏 Your Distance from Tree</span>
+          <span id="distance-value">20 ft</span>
+        </div>
+        <input type="range" id="distance" min="10" max="40" value="20" step="2">
+        <div style="font-size: 11px; color: #666; margin-top: 5px;">💡 In shadow method, this is just for positioning - we measure shadows!</div>
+      </div>
+      
+      <div class="slider-container" id="angle-control" style="display: none;">
+        <div class="slider-label">
+          <span>📐 Angle to Tree Top</span>
+          <span id="angle-value">45°</span>
+        </div>
+        <input type="range" id="angle" min="10" max="80" value="45" step="1">
+      </div>
+    </div>
+    
+    <div class="calculation-box">
+      <h4 id="method-title">🌞 Shadow Method Calculation</h4>
+      <div id="calculation-content">
+        <div class="formula">Similar Triangles:</div>
+        <div class="formula" id="ratio-formula">person/shadow = tree/tree_shadow</div>
+        <div class="formula" id="solve-formula">5.5/4 = tree/29</div>
+        <div class="formula" id="result-formula">tree = 39.9 ft</div>
+      </div>
+    </div>
+    
+    <div class="stats">
+      <div class="stat-card">
+        <div class="label">🌳 Tree Height</div>
+        <div class="value" id="tree-height">40.0 ft</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">👤 Your Shadow</div>
+        <div class="value" id="person-shadow">4.0 ft</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">🌳 Tree Shadow</div>
+        <div class="value" id="tree-shadow">29.1 ft</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">📐 Sun Angle</div>
+        <div class="value" id="sun-angle">54°</div>
+      </div>
+    </div>
+    
+    <div class="tip-box">
+      <h4>💡 How to Explain to Kids</h4>
+      <p id="method-explanation">
+        🌞 <strong>Shadow Method:</strong> "It's like magic! When the sun shines, everything makes a shadow. Your shadow and the tree's shadow are like twins - they have the same 'shape' but different sizes! If you measure your height and your shadow, then measure the tree's shadow, you can figure out how tall the tree is using math. It's like solving a puzzle!" 🧩
+      </p>
+      <div style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.5); border-radius: 8px; font-size: 12px;">
+        <strong>👩‍🏫 Teacher Tip:</strong> Have kids stand outside and measure their shadows at the same time. Show them how taller kids have longer shadows, but the ratio stays the same!
+      </div>
+    </div>
+  </div>
+  
+  <div class="animation-container">
+    <div class="anim-topbar" role="toolbar" aria-label="Animation controls">
+      <div class="anim-title">🌳 Tree Height</div>
+      <div class="anim-controls">
+        <button class="mini-btn" id="playPauseBtn">⏯️</button>
+        <button class="mini-btn" id="closeBtn">✖</button>
+      </div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <div class="sun-indicator">☀️</div>
+    <div class="info-overlay" id="info-overlay">
+      Move around to see how shadows change with distance!
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+  (function(){
+    const play = document.getElementById('playPauseBtn');
+    const close = document.getElementById('closeBtn');
+    if (play) play.addEventListener('click', () => { const btn = document.querySelector('#btn-animate, #btn-start'); if (btn) btn.click(); else window.isRunning = !window.isRunning; });
+    if (close) close.addEventListener('click', () => { try { if (window.parent && window.parent !== window) { if (window.parent.clearAnimation) { window.parent.clearAnimation(); return; } } } catch(e){ console.warn('close action failed', e); } });
+  })();
+
+// Get control elements
+const personHeightSlider = document.getElementById('person-height');
+const distanceSlider = document.getElementById('distance');
+const angleSlider = document.getElementById('angle');
+
+// Animation state
+let currentMethod = 'shadow';
+let isDragging = false;
+let dragTarget = null;
+
+// Scene objects
+const sun = {
+  x: 0,
+  y: 0,
+  angle: 54 // degrees above horizon
+};
+
+const tree = {
+  x: 0,
+  y: 0,
+  height: 40, // feet
+  displayHeight: 0
+};
+
+const person = {
+  x: 0,
+  y: 0,
+  height: 5.5, // feet
+  displayHeight: 0,
+  distance: 20 // feet from tree
+};
+
+// Set measurement method
+function setMethod(method) {
+  currentMethod = method;
+  
+  // Update button states
+  document.querySelectorAll('.method-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  // Show/hide controls
+  if (method === 'angle') {
+    document.getElementById('angle-control').style.display = 'block';
+    document.getElementById('distance-label').textContent = '📏 Distance from Tree';
+    document.getElementById('method-title').textContent = '📐 Angle Method Calculation';
+    document.getElementById('method-explanation').innerHTML = 
+      '📐 <strong>Angle Method:</strong> "Imagine you\'re a detective with a special tool! You stand far from the tree and look up at the very top. The angle your eyes make is like a secret code that tells us how tall the tree is! The farther you are, the smaller the angle. It\'s like magic math!" 🪄<br><br><strong>👩‍🏫 Teacher Tip:</strong> Use a protractor or phone app to measure angles. Show kids how the angle gets smaller as they walk away!';
+  } else {
+    document.getElementById('angle-control').style.display = 'none';
+    document.getElementById('distance-label').textContent = '📏 Distance from Tree';
+    document.getElementById('method-title').textContent = '🌞 Shadow Method Calculation';
+    document.getElementById('method-explanation').innerHTML = 
+      '🌞 <strong>Shadow Method:</strong> "It\'s like magic! When the sun shines, everything makes a shadow. Your shadow and the tree\'s shadow are like twins - they have the same \'shape\' but different sizes! If you measure your height and your shadow, then measure the tree\'s shadow, you can figure out how tall the tree is using math. It\'s like solving a puzzle!" 🧩<br><br><strong>👩‍🏫 Teacher Tip:</strong> Have kids stand outside and measure their shadows at the same time. Show them how taller kids have longer shadows, but the ratio stays the same!';
+  }
+  
+  calculateMeasurements();
+  drawScene();
+}
+
+// Calculate all measurements
+function calculateMeasurements() {
+  const personHeight = parseFloat(personHeightSlider.value);
+  const distance = parseFloat(distanceSlider.value);
+  
+  person.height = personHeight;
+  person.distance = distance;
+  
+  if (currentMethod === 'shadow') {
+    // Shadow method using similar triangles
+    // Key insight: person and tree cast shadows at the SAME TIME with the SAME sun angle
+    const sunAngleRad = sun.angle * Math.PI / 180;
+    
+    // Calculate person's shadow length
+    const personShadow = personHeight / Math.tan(sunAngleRad);
+    
+    // For the tree: we know the tree is at a certain distance from the person
+    // We need to measure the tree's actual shadow length
+    // But for this demo, let's assume we can measure it or calculate it
+    // The key is: height/shadow = constant for same sun angle
+    
+    // Method 1: If we measure tree shadow directly
+    // Let's say tree shadow extends beyond where person is standing
+    const treeShadow = personShadow + distance; // This is wrong - let me fix
+    
+    // CORRECT METHOD: Similar triangles
+    // We measure person height, person shadow, and tree shadow
+    // Then: person_height/person_shadow = tree_height/tree_shadow
+    // So: tree_height = (person_height * tree_shadow) / person_shadow
+    
+    // For demo purposes, let's assume tree shadow is what we'd measure
+    const assumedTreeShadow = 30; // This would be measured in real life
+    const treeHeight = (personHeight * assumedTreeShadow) / personShadow;
+    
+    tree.height = treeHeight;
+    
+    updateShadowDisplay(personHeight, personShadow, treeHeight, assumedTreeShadow);
+  } else {
+    // Angle method using trigonometry
+    const angle = parseFloat(angleSlider.value);
+    const angleRad = angle * Math.PI / 180;
+    const treeHeight = distance * Math.tan(angleRad) + personHeight; // Add person height for eye level
+    
+    tree.height = treeHeight;
+    
+    updateAngleDisplay(personHeight, distance, angle, treeHeight);
+  }
+  
+  updateDisplay();
+}
+
+function updateShadowDisplay(personHeight, personShadow, treeHeight, treeShadow) {
+  document.getElementById('ratio-formula').textContent = 
+    `${personHeight}/${personShadow.toFixed(1)} = ${treeHeight.toFixed(1)}/${treeShadow.toFixed(1)}`;
+  document.getElementById('solve-formula').textContent = 
+    `tree = (${personHeight} × ${treeShadow.toFixed(1)}) ÷ ${personShadow.toFixed(1)}`;
+  document.getElementById('result-formula').textContent = 
+    `tree = ${treeHeight.toFixed(1)} ft`;
+  
+  document.getElementById('person-shadow').textContent = personShadow.toFixed(1) + ' ft';
+  document.getElementById('tree-shadow').textContent = treeShadow.toFixed(1) + ' ft';
+}
+
+function updateAngleDisplay(personHeight, distance, angle, treeHeight) {
+  document.getElementById('calculation-content').innerHTML = `
+    <div class="formula">Trigonometry:</div>
+    <div class="formula">tan(${angle}°) = height/${distance}</div>
+    <div class="formula">height = ${distance} × tan(${angle}°)</div>
+    <div class="formula">tree = ${treeHeight.toFixed(1)} ft</div>
+  `;
+  
+  document.getElementById('person-shadow').textContent = 'N/A';
+  document.getElementById('tree-shadow').textContent = 'N/A';
+}
+
+// Update all display values
+function updateDisplay() {
+  const personHeight = parseFloat(personHeightSlider.value);
+  const distance = parseFloat(distanceSlider.value);
+  
+  document.getElementById('person-height-value').textContent = personHeight + ' ft';
+  document.getElementById('distance-value').textContent = distance + ' ft';
+  document.getElementById('tree-height').textContent = tree.height.toFixed(1) + ' ft';
+  document.getElementById('sun-angle').textContent = Math.round(sun.angle) + '°';
+  
+  if (currentMethod === 'angle') {
+    const angle = parseFloat(angleSlider.value);
+    document.getElementById('angle-value').textContent = angle + '°';
+  }
+}
+
+// Draw the complete scene
+function drawScene() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw sky gradient
+  const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.7);
+  skyGradient.addColorStop(0, '#87CEEB');
+  skyGradient.addColorStop(1, '#98FB98');
+  ctx.fillStyle = skyGradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw ground
+  ctx.fillStyle = '#8B4513';
+  ctx.fillRect(0, canvas.height * 0.7, canvas.width, canvas.height * 0.3);
+  
+  // Draw grass
+  ctx.fillStyle = '#228B22';
+  ctx.fillRect(0, canvas.height * 0.7 - 10, canvas.width, 10);
+  
+  // Set positions
+  const groundY = canvas.height * 0.7;
+  tree.x = canvas.width * 0.8;
+  tree.y = groundY;
+  tree.displayHeight = tree.height * 4; // Scale for display
+  
+  person.x = tree.x - person.distance * 8; // Scale for display
+  person.y = groundY;
+  person.displayHeight = person.height * 4;
+  
+  sun.x = canvas.width * 0.2;
+  sun.y = canvas.height * 0.2;
+  
+  // Draw sun
+  drawSun();
+  
+  // Draw tree
+  drawTree();
+  
+  // Draw person
+  drawPerson();
+  
+  // Draw measurements based on method
+  if (currentMethod === 'shadow') {
+    drawShadows();
+    drawShadowMeasurements();
+  } else {
+    drawAngleMeasurement();
+  }
+  
+  // Draw distance measurement
+  drawDistanceMeasurement();
+}
+
+function drawSun() {
+  // Sun glow
+  const glowGradient = ctx.createRadialGradient(sun.x, sun.y, 0, sun.x, sun.y, 40);
+  glowGradient.addColorStop(0, 'rgba(255, 215, 0, 0.8)');
+  glowGradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+  ctx.fillStyle = glowGradient;
+  ctx.fillRect(sun.x - 40, sun.y - 40, 80, 80);
+  
+  // Sun body
+  ctx.fillStyle = '#FFD700';
+  ctx.beginPath();
+  ctx.arc(sun.x, sun.y, 25, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Sun rays
+  ctx.strokeStyle = '#FFD700';
+  ctx.lineWidth = 3;
+  for (let i = 0; i < 8; i++) {
+    const angle = (i / 8) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(sun.x + Math.cos(angle) * 30, sun.y + Math.sin(angle) * 30);
+    ctx.lineTo(sun.x + Math.cos(angle) * 40, sun.y + Math.sin(angle) * 40);
+    ctx.stroke();
+  }
+}
+
+function drawTree() {
+  // Tree trunk
+  ctx.fillStyle = '#8B4513';
+  ctx.fillRect(tree.x - 8, tree.y - tree.displayHeight * 0.2, 16, tree.displayHeight * 0.2);
+  
+  // Tree crown (multiple circles for realistic look)
+  ctx.fillStyle = '#228B22';
+  const crownCenters = [
+    { x: tree.x, y: tree.y - tree.displayHeight * 0.8 },
+    { x: tree.x - 15, y: tree.y - tree.displayHeight * 0.7 },
+    { x: tree.x + 15, y: tree.y - tree.displayHeight * 0.7 },
+    { x: tree.x - 10, y: tree.y - tree.displayHeight * 0.9 },
+    { x: tree.x + 10, y: tree.y - tree.displayHeight * 0.9 }
+  ];
+  
+  crownCenters.forEach(center => {
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, 20, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  
+  // Tree top marker
+  ctx.fillStyle = '#FF0000';
+  ctx.beginPath();
+  ctx.arc(tree.x, tree.y - tree.displayHeight, 4, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawPerson() {
+  // Person body (stick figure)
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 3;
+  
+  // Head
+  ctx.beginPath();
+  ctx.arc(person.x, person.y - person.displayHeight + 8, 8, 0, Math.PI * 2);
+  ctx.stroke();
+  
+  // Body
+  ctx.beginPath();
+  ctx.moveTo(person.x, person.y - person.displayHeight + 16);
+  ctx.lineTo(person.x, person.y - person.displayHeight * 0.4);
+  ctx.stroke();
+  
+  // Arms
+  ctx.beginPath();
+  ctx.moveTo(person.x - 10, person.y - person.displayHeight * 0.7);
+  ctx.lineTo(person.x + 10, person.y - person.displayHeight * 0.7);
+  ctx.stroke();
+  
+  // Legs
+  ctx.beginPath();
+  ctx.moveTo(person.x, person.y - person.displayHeight * 0.4);
+  ctx.lineTo(person.x - 8, person.y);
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(person.x, person.y - person.displayHeight * 0.4);
+  ctx.lineTo(person.x + 8, person.y);
+  ctx.stroke();
+  
+  // Eye level marker (for angle method)
+  if (currentMethod === 'angle') {
+    ctx.fillStyle = '#FF0000';
+    ctx.beginPath();
+    ctx.arc(person.x, person.y - person.displayHeight + 16, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawShadows() {
+  const sunAngleRad = sun.angle * Math.PI / 180;
+  
+  // Calculate shadow lengths (shadows extend away from sun)
+  const personShadowLength = person.displayHeight / Math.tan(sunAngleRad);
+  const treeShadowLength = tree.displayHeight / Math.tan(sunAngleRad);
+  
+  // Determine shadow direction based on sun position
+  const shadowDirection = sun.x < canvas.width / 2 ? 1 : -1; // Right if sun on left, left if sun on right
+  
+  // Person shadow (rectangle, not ellipse)
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.fillRect(person.x, person.y - 2, personShadowLength * shadowDirection, 4);
+  
+  // Tree shadow (rectangle)
+  ctx.fillRect(tree.x, tree.y - 2, treeShadowLength * shadowDirection, 8);
+  
+  // Draw light rays from sun to show how shadows are created
+  ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 5]);
+  
+  // Person shadow ray (from sun through person's head to end of shadow)
+  ctx.beginPath();
+  ctx.moveTo(sun.x, sun.y);
+  ctx.lineTo(person.x, person.y - person.displayHeight);
+  ctx.lineTo(person.x + personShadowLength * shadowDirection, person.y);
+  ctx.stroke();
+  
+  // Tree shadow ray (from sun through tree top to end of shadow)
+  ctx.beginPath();
+  ctx.moveTo(sun.x, sun.y);
+  ctx.lineTo(tree.x, tree.y - tree.displayHeight);
+  ctx.lineTo(tree.x + treeShadowLength * shadowDirection, tree.y);
+  ctx.stroke();
+  
+  ctx.setLineDash([]); // Reset line dash
+  
+  // Draw similar triangles outline to show the concept
+  ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+  ctx.lineWidth = 3;
+  
+  // Person triangle
+  ctx.beginPath();
+  ctx.moveTo(person.x, person.y);
+  ctx.lineTo(person.x, person.y - person.displayHeight);
+  ctx.lineTo(person.x + personShadowLength * shadowDirection, person.y);
+  ctx.closePath();
+  ctx.stroke();
+  
+  // Tree triangle
+  ctx.beginPath();
+  ctx.moveTo(tree.x, tree.y);
+  ctx.lineTo(tree.x, tree.y - tree.displayHeight);
+  ctx.lineTo(tree.x + treeShadowLength * shadowDirection, tree.y);
+  ctx.closePath();
+  ctx.stroke();
+}
+
+function drawShadowMeasurements() {
+  const sunAngleRad = sun.angle * Math.PI / 180;
+  const personShadowLength = person.displayHeight / Math.tan(sunAngleRad);
+  const treeShadowLength = tree.displayHeight / Math.tan(sunAngleRad);
+  const shadowDirection = sun.x < canvas.width / 2 ? 1 : -1;
+  
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 2;
+  ctx.font = 'bold 12px Arial';
+  ctx.fillStyle = '#333';
+  
+  // Person height measurement
+  const personHeightX = person.x - 20;
+  ctx.beginPath();
+  ctx.moveTo(personHeightX, person.y);
+  ctx.lineTo(personHeightX, person.y - person.displayHeight);
+  ctx.stroke();
+  
+  drawArrow(personHeightX, person.y, 0, -5);
+  drawArrow(personHeightX, person.y - person.displayHeight, 0, 5);
+  
+  ctx.save();
+  ctx.translate(personHeightX - 15, person.y - person.displayHeight/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = 'center';
+  ctx.fillText(`${person.height} ft`, 0, 0);
+  ctx.restore();
+  
+  // Person shadow measurement
+  const personShadowY = person.y + 25;
+  const personShadowEnd = person.x + personShadowLength * shadowDirection;
+  ctx.beginPath();
+  ctx.moveTo(person.x, personShadowY);
+  ctx.lineTo(personShadowEnd, personShadowY);
+  ctx.stroke();
+  
+  drawArrow(person.x, personShadowY, 5 * shadowDirection, 0);
+  drawArrow(personShadowEnd, personShadowY, -5 * shadowDirection, 0);
+  
+  ctx.textAlign = 'center';
+  ctx.fillText(`${(person.height / Math.tan(sunAngleRad)).toFixed(1)} ft`, 
+    (person.x + personShadowEnd)/2, personShadowY + 15);
+  
+  // Tree height measurement
+  const treeHeightX = tree.x + 20;
+  ctx.beginPath();
+  ctx.moveTo(treeHeightX, tree.y);
+  ctx.lineTo(treeHeightX, tree.y - tree.displayHeight);
+  ctx.stroke();
+  
+  drawArrow(treeHeightX, tree.y, 0, -5);
+  drawArrow(treeHeightX, tree.y - tree.displayHeight, 0, 5);
+  
+  ctx.save();
+  ctx.translate(treeHeightX + 15, tree.y - tree.displayHeight/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = 'center';
+  ctx.fillText(`${tree.height.toFixed(1)} ft`, 0, 0);
+  ctx.restore();
+  
+  // Tree shadow measurement
+  const treeShadowY = tree.y + 25;
+  const treeShadowEnd = tree.x + treeShadowLength * shadowDirection;
+  ctx.beginPath();
+  ctx.moveTo(tree.x, treeShadowY);
+  ctx.lineTo(treeShadowEnd, treeShadowY);
+  ctx.stroke();
+  
+  drawArrow(tree.x, treeShadowY, 5 * shadowDirection, 0);
+  drawArrow(treeShadowEnd, treeShadowY, -5 * shadowDirection, 0);
+  
+  ctx.fillText(`${(tree.height / Math.tan(sunAngleRad)).toFixed(1)} ft`, 
+    (tree.x + treeShadowEnd)/2, treeShadowY + 15);
+  
+  // Show the ratio relationship
+  ctx.fillStyle = '#FF0000';
+  ctx.font = 'bold 14px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('Similar Triangles!', canvas.width/2, 50);
+  ctx.fillText(`${person.height}/${(person.height / Math.tan(sunAngleRad)).toFixed(1)} = ${tree.height.toFixed(1)}/${(tree.height / Math.tan(sunAngleRad)).toFixed(1)}`, 
+    canvas.width/2, 70);
+}
+
+function drawAngleMeasurement() {
+  const angle = parseFloat(angleSlider.value);
+  const angleRad = angle * Math.PI / 180;
+  
+  // Line of sight
+  ctx.strokeStyle = '#FF0000';
+  ctx.lineWidth = 3;
+  ctx.setLineDash([5, 5]);
+  ctx.beginPath();
+  ctx.moveTo(person.x, person.y - person.displayHeight + 16); // Eye level
+  ctx.lineTo(tree.x, tree.y - tree.displayHeight);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  
+  // Angle arc
+  const arcRadius = 40;
+  ctx.strokeStyle = '#FF6B35';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(person.x, person.y - person.displayHeight + 16, arcRadius, -angleRad, 0);
+  ctx.stroke();
+  
+  // Angle label
+  ctx.fillStyle = '#FF6B35';
+  ctx.font = 'bold 14px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${angle}°`, 
+    person.x + Math.cos(-angleRad/2) * (arcRadius + 20),
+    person.y - person.displayHeight + 16 + Math.sin(-angleRad/2) * (arcRadius + 20));
+}
+
+function drawDistanceMeasurement() {
+  const measureY = person.y + 40;
+  
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(person.x, measureY);
+  ctx.lineTo(tree.x, measureY);
+  ctx.stroke();
+  
+  drawArrow(person.x, measureY, 5, 0);
+  drawArrow(tree.x, measureY, -5, 0);
+  
+  ctx.font = 'bold 14px Arial';
+  ctx.fillStyle = '#333';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${person.distance} ft`, (person.x + tree.x) / 2, measureY + 20);
+}
+
+function drawArrow(x, y, dx, dy) {
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + dx, y + dy - 3);
+  ctx.lineTo(x + dx, y + dy + 3);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// Setup canvas size
+function resizeCanvas() {
+  const container = canvas.parentElement;
+  canvas.width = container.clientWidth;
+  canvas.height = container.clientHeight;
+  
+  calculateMeasurements();
+  drawScene();
+}
+
+// Event listeners
+personHeightSlider.addEventListener('input', () => {
+  calculateMeasurements();
+  drawScene();
+});
+
+distanceSlider.addEventListener('input', () => {
+  calculateMeasurements();
+  drawScene();
+});
+
+angleSlider.addEventListener('input', () => {
+  calculateMeasurements();
+  drawScene();
+});
+
+// Mouse interaction for dragging person
+canvas.addEventListener('mousedown', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  
+  // Check if clicking near person
+  const distance = Math.hypot(mouseX - person.x, mouseY - (person.y - person.displayHeight/2));
+  if (distance < 30) {
+    isDragging = true;
+    dragTarget = 'person';
+    canvas.style.cursor = 'grabbing';
+  }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  
+  if (isDragging && dragTarget === 'person') {
+    // Calculate new distance based on mouse position
+    const newDistance = Math.abs(tree.x - mouseX) / 8; // Scale back
+    const constrainedDistance = Math.max(5, Math.min(50, newDistance));
+    
+    distanceSlider.value = constrainedDistance;
+    calculateMeasurements();
+    drawScene();
+  } else {
+    // Check if hovering over person
+    const distance = Math.hypot(mouseX - person.x, mouseY - (person.y - person.displayHeight/2));
+    canvas.style.cursor = distance < 30 ? 'grab' : 'default';
+  }
+});
+
+canvas.addEventListener('mouseup', () => {
+  isDragging = false;
+  dragTarget = null;
+  canvas.style.cursor = 'default';
+});
+
+// Initialize
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// Update info overlay with tips
+const tips = [
+  "Drag the person to change distance from the tree!",
+  "Try both shadow and angle methods!",
+  "Similar triangles: same shape, different size!",
+  "Surveyors use these methods to measure tall objects!",
+  "The sun creates the same angle for all shadows!"
+];
+
+let tipIndex = 0;
+setInterval(() => {
+  document.getElementById('info-overlay').textContent = tips[tipIndex];
+  tipIndex = (tipIndex + 1) % tips.length;
+}, 4000);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>🚀 Projectile Motion — Parabolas & Trajectories</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+    :root { --bg:#0b0f14; --panel:#141a21; --text:#e8eef6; --muted:#9bb0c3; --accent:#48a6ff; }
+    *{box-sizing:border-box} html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial;}
+    .wrap{display:grid;grid-template-columns:260px 1fr;grid-template-rows:auto 1fr;gap:10px;padding:10px;height:100%}
+    header{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 14px}
+    header h1{font-size:16px;margin:0;font-weight:600} header .small{color:var(--muted);font-size:12px;margin-left:8px}
+    .panel{background:var(--panel);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;overflow:auto}
+    canvas{width:100%;height:100%;display:block;background:linear-gradient(180deg,#1a2440,#0f1820);border:1px solid rgba(255,255,255,0.08);border-radius:12px}
+    .control{margin:10px 0 16px} .control label{font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:space-between}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px} .row{display:flex;gap:8px;align-items:center}
+    button{background:#0f141b;border:1px solid rgba(255,255,255,0.09);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px;cursor:pointer}
+    button.primary{background:var(--accent);color:#001428;border:none}
+    button.fire{background:#ff4444;color:#fff;border:none;font-weight:600}
+    .kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px} .kpi div{background:#0f141b;border:1px solid rgba(255,255,255,0.08);padding:10px;border-radius:10px;font-size:12px}
+    .kpi .v{font-size:16px;color:#3bd16f;font-weight:600}
+    .tag{font-size:11px;color:var(--muted)}
+    .equation{background:#1a1f28;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px;margin:8px 0;font-family:monospace}
+    .equation .title{color:var(--accent);font-size:11px;margin-bottom:6px}
+    .equation .formula{color:var(--text);font-size:14px}
+    input[type="range"]{width:100%;accent-color:var(--accent)}
+    select{background:var(--panel);border:1px solid rgba(255,255,255,0.09);color:var(--text);border-radius:6px;padding:4px}
+    /* small consistent topbar for animations */
+    .anim-topbar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.92);
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      z-index: 30;
+      font-weight: 700;
+    }
+    .anim-topbar .anim-title { color: var(--accent); font-size: 14px; }
+    .anim-topbar .anim-controls { display:flex; gap:8px; align-items:center; }
+    .anim-topbar .mini-btn { background:#f3f4f6; border:none; padding:8px 10px; border-radius:8px; cursor:pointer; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Projectile Motion & Parabolas <span class="small">trajectory physics</span></h1>
+    <div class="row">
+      <button id="btn-fire" class="fire">🚀 FIRE!</button>
+      <button id="btn-clear">Clear</button>
+      <button id="btn-reset">Reset</button>
+    </div>
+  </header>
+
+  <aside class="panel">
+    <div class="control">
+      <label>Launch Speed <span><span id="lbl-speed">25</span> m/s</span></label>
+      <input id="rng-speed" type="range" min="5" max="50" step="1" value="25">
+    </div>
+    <div class="control">
+      <label>Launch Angle <span><span id="lbl-angle">45</span>°</span></label>
+      <input id="rng-angle" type="range" min="0" max="90" step="1" value="45">
+    </div>
+    <div class="control">
+      <label>Gravity <span><span id="lbl-gravity">9.81</span> m/s²</span></label>
+      <select id="sel-gravity">
+        <option value="9.81">Earth (9.81)</option>
+        <option value="1.62">Moon (1.62)</option>
+        <option value="3.71">Mars (3.71)</option>
+        <option value="24.79">Jupiter (24.79)</option>
+      </select>
+    </div>
+    
+    <div class="grid">
+      <label class="row"><input type="checkbox" id="chk-drag">&nbsp;Air Resistance</label>
+      <label class="row"><input type="checkbox" id="chk-theory" checked>&nbsp;Theory Curve</label>
+    </div>
+    
+    <div class="control" id="drag-control" style="display:none">
+      <label>Drag Coeff <span><span id="lbl-drag">0.1</span></span></label>
+      <input id="rng-drag" type="range" min="0" max="0.5" step="0.01" value="0.1">
+    </div>
+
+    <div class="equation">
+      <div class="title">PROJECTILE EQUATIONS</div>
+      <div class="formula">x = v₀cos(θ)·t</div>
+      <div class="formula">y = v₀sin(θ)·t - ½gt²</div>
+      <div class="formula" id="eq-parabola">y = -0.039x² + x</div>
+    </div>
+
+    <div class="kpi">
+      <div>Range<br><span id="kpi-range" class="v">0.0</span> m</div>
+      <div>Max Height<br><span id="kpi-height" class="v">0.0</span> m</div>
+      <div>Flight Time<br><span id="kpi-time" class="v">0.0</span> s</div>
+      <div>Current Vel<br><span id="kpi-vel" class="v">0.0</span> m/s</div>
+    </div>
+    
+    <div class="tag" style="margin-top:8px">
+      Tip: Try 45° for maximum range! Toggle air resistance to see real vs ideal trajectories.
+    </div>
+  </aside>
+
+  <main class="panel" style="padding:0; position:relative">
+    <div class="anim-topbar" role="toolbar" aria-label="Animation controls">
+      <div class="anim-title">🚀 Projectile Motion</div>
+      <div class="anim-controls">
+        <button class="mini-btn" id="playPauseBtn">⏯️</button>
+        <button class="mini-btn" id="closeBtn">✖</button>
+      </div>
+    </div>
+    <canvas id="cv"></canvas>
+  </main>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('cv');
+  const ctx = canvas.getContext('2d');
+  let W=1280,H=720,DPR=Math.max(1,Math.min(2,window.devicePixelRatio||1));
+  
+  function resize(){
+    const r=canvas.getBoundingClientRect();
+    W=Math.max(640,Math.floor(r.width)); H=Math.max(360,Math.floor(r.height));
+    canvas.width=Math.floor(W*DPR); canvas.height=Math.floor(H*DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  new ResizeObserver(resize).observe(canvas);
+
+  // UI Elements
+  const speedEl = document.getElementById('rng-speed');
+  const angleEl = document.getElementById('rng-angle');
+  const gravityEl = document.getElementById('sel-gravity');
+  const dragEl = document.getElementById('chk-drag');
+  const theoryEl = document.getElementById('chk-theory');
+  const dragCoeffEl = document.getElementById('rng-drag');
+  const dragControl = document.getElementById('drag-control');
+  
+  const lblSpeed = document.getElementById('lbl-speed');
+  const lblAngle = document.getElementById('lbl-angle');
+  const lblGravity = document.getElementById('lbl-gravity');
+  const lblDrag = document.getElementById('lbl-drag');
+
+  // Update labels
+  function updateLabels() {
+    lblSpeed.textContent = speedEl.value;
+    lblAngle.textContent = angleEl.value;
+    lblGravity.textContent = gravityEl.value;
+    lblDrag.textContent = dragCoeffEl.value;
+    
+    // Update parabola equation
+    const v0 = parseFloat(speedEl.value);
+    const theta = parseFloat(angleEl.value) * Math.PI / 180;
+    const g = parseFloat(gravityEl.value);
+    const a = -g / (2 * v0 * v0 * Math.cos(theta) * Math.cos(theta));
+    const b = Math.tan(theta);
+    document.getElementById('eq-parabola').textContent = 
+      `y = ${a.toFixed(4)}x² + ${b.toFixed(2)}x`;
+  }
+  
+  [speedEl, angleEl, dragCoeffEl].forEach(e => e.addEventListener('input', updateLabels));
+  gravityEl.addEventListener('change', updateLabels);
+  dragEl.addEventListener('change', () => {
+    dragControl.style.display = dragEl.checked ? 'block' : 'none';
+  });
+  updateLabels();
+
+  // Simulation state
+  let projectiles = [];
+  let trajectories = [];
+  
+  class Projectile {
+    constructor() {
+      this.x = 50; // Launch position
+      this.y = H - 100;
+      this.vx = parseFloat(speedEl.value) * Math.cos(parseFloat(angleEl.value) * Math.PI / 180);
+      this.vy = parseFloat(speedEl.value) * Math.sin(parseFloat(angleEl.value) * Math.PI / 180);
+      this.trail = [{x: this.x, y: this.y}];
+      this.active = true;
+      this.time = 0;
+      this.scale = 3; // pixels per meter
+    }
+    
+    update(dt) {
+      if (!this.active) return;
+      
+      const g = parseFloat(gravityEl.value);
+      const drag = dragEl.checked ? parseFloat(dragCoeffEl.value) : 0;
+      
+      // Air resistance
+      if (drag > 0) {
+        const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+        const dragForce = drag * speed * speed;
+        const dragX = -dragForce * (this.vx / speed) / 10; // mass = 10kg assumption
+        const dragY = -dragForce * (this.vy / speed) / 10;
+        
+        this.vx += dragX * dt;
+        this.vy += dragY * dt;
+      }
+      
+      // Gravity
+      this.vy -= g * dt;
+      
+      // Update position
+      this.x += this.vx * this.scale * dt;
+      this.y -= this.vy * this.scale * dt; // negative because canvas y increases downward
+      this.time += dt;
+      
+      // Add to trail
+      this.trail.push({x: this.x, y: this.y});
+      if (this.trail.length > 500) this.trail.shift();
+      
+      // Check ground collision
+      if (this.y >= H - 100) {
+        this.active = false;
+        this.y = H - 100;
+        
+        // Calculate final stats
+        const range = (this.x - 50) / this.scale;
+        const maxHeight = Math.min(...this.trail.map(p => p.y));
+        const height = (H - 100 - maxHeight) / this.scale;
+        
+        document.getElementById('kpi-range').textContent = range.toFixed(1);
+        document.getElementById('kpi-height').textContent = height.toFixed(1);
+        document.getElementById('kpi-time').textContent = this.time.toFixed(1);
+      }
+      
+      // Update current velocity display
+      const currentVel = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+      document.getElementById('kpi-vel').textContent = currentVel.toFixed(1);
+    }
+    
+    draw() {
+      // Trail
+      if (this.trail.length > 1) {
+        ctx.save();
+        ctx.strokeStyle = this.active ? '#ff6b6b' : '#ff6b6b80';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.trail[0].x, this.trail[0].y);
+        for (let i = 1; i < this.trail.length; i++) {
+          ctx.lineTo(this.trail[i].x, this.trail[i].y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+      
+      // Projectile
+      if (this.active) {
+        ctx.save();
+        ctx.fillStyle = '#ffdd44';
+        ctx.strokeStyle = '#ff8800';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Velocity vector
+        ctx.strokeStyle = '#44ff44';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x + this.vx * 2, this.y - this.vy * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  }
+
+  // Controls
+  document.getElementById('btn-fire').onclick = () => {
+    projectiles.push(new Projectile());
+  };
+  
+  document.getElementById('btn-clear').onclick = () => {
+    projectiles = [];
+    trajectories = [];
+  };
+  
+  document.getElementById('btn-reset').onclick = () => {
+    projectiles = [];
+    trajectories = [];
+    document.getElementById('kpi-range').textContent = '0.0';
+    document.getElementById('kpi-height').textContent = '0.0';
+    document.getElementById('kpi-time').textContent = '0.0';
+    document.getElementById('kpi-vel').textContent = '0.0';
+  };
+
+  // Draw theoretical trajectory
+  function drawTheoryTrajectory() {
+    if (!theoryEl.checked) return;
+    
+    ctx.save();
+    ctx.strokeStyle = 'rgba(72, 166, 255, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    
+    const v0 = parseFloat(speedEl.value);
+    const theta = parseFloat(angleEl.value) * Math.PI / 180;
+    const g = parseFloat(gravityEl.value);
+    const scale = 3;
+    
+    const startX = 50;
+    const startY = H - 100;
+    
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    
+    const timeOfFlight = 2 * v0 * Math.sin(theta) / g;
+    const steps = 100;
+    
+    for (let i = 1; i <= steps; i++) {
+      const t = (i / steps) * timeOfFlight;
+      const x = v0 * Math.cos(theta) * t;
+      const y = v0 * Math.sin(theta) * t - 0.5 * g * t * t;
+      
+      const screenX = startX + x * scale;
+      const screenY = startY - y * scale;
+      
+      if (screenY <= H - 100) {
+        ctx.lineTo(screenX, screenY);
+      } else {
+        break;
+      }
+    }
+    
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw cannon
+  function drawCannon() {
+    const cannonX = 50;
+    const cannonY = H - 100;
+    const angle = parseFloat(angleEl.value) * Math.PI / 180;
+    
+    ctx.save();
+    
+    // Cannon base
+    ctx.fillStyle = '#666';
+    ctx.fillRect(cannonX - 15, cannonY - 10, 30, 20);
+    
+    // Cannon barrel
+    ctx.strokeStyle = '#888';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(cannonX, cannonY);
+    ctx.lineTo(cannonX + Math.cos(angle) * 40, cannonY - Math.sin(angle) * 40);
+    ctx.stroke();
+    
+    // Angle indicator
+    ctx.strokeStyle = '#48a6ff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cannonX, cannonY, 25, -angle, 0);
+    ctx.stroke();
+    
+    // Angle label
+    ctx.fillStyle = '#48a6ff';
+    ctx.font = '12px sans-serif';
+    ctx.fillText(`${angleEl.value}°`, cannonX + 30, cannonY + 15);
+    
+    ctx.restore();
+  }
+
+  // Draw ground and grid
+  function drawEnvironment() {
+    // Ground
+    ctx.save();
+    ctx.fillStyle = '#2d4a2d';
+    ctx.fillRect(0, H - 100, W, 100);
+    
+    ctx.strokeStyle = '#4a6b4a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, H - 100);
+    ctx.lineTo(W, H - 100);
+    ctx.stroke();
+    
+    // Grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1;
+    
+    // Vertical lines (every 50 pixels = ~16.7 meters)
+    for (let x = 50; x < W; x += 50) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, H - 100);
+      ctx.stroke();
+      
+      // Distance markers
+      const distance = (x - 50) / 3; // 3 pixels per meter
+      if (distance > 0 && distance % 20 === 0) {
+        ctx.fillStyle = '#666';
+        ctx.font = '10px sans-serif';
+        ctx.fillText(`${distance}m`, x - 10, H - 80);
+      }
+    }
+    
+    // Horizontal lines
+    for (let y = H - 150; y > 0; y -= 50) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
+      
+      // Height markers
+      const height = (H - 100 - y) / 3;
+      if (height % 20 === 0) {
+        ctx.fillStyle = '#666';
+        ctx.font = '10px sans-serif';
+        ctx.fillText(`${height}m`, 5, y + 5);
+      }
+    }
+    
+    ctx.restore();
+  }
+
+  // Main render loop
+  function render() {
+    ctx.clearRect(0, 0, W, H);
+    
+    drawEnvironment();
+    drawCannon();
+    drawTheoryTrajectory();
+    
+    // Update and draw projectiles
+    for (let projectile of projectiles) {
+      projectile.update(1/60); // 60 FPS
+      projectile.draw();
+    }
+    
+    requestAnimationFrame(render);
+  }
+
+  // Initialize
+  resize();
+  render();
+})();
+
+
+</script>
+
+<script>
+  (function(){
+    const play = document.getElementById('playPauseBtn');
+    const close = document.getElementById('closeBtn');
+    if (play) play.addEventListener('click', () => { const btn = document.querySelector('#btn-fire, #btn-animate, #btn-start'); if (btn) btn.click(); else window.isRunning = !window.isRunning; });
+    if (close) close.addEventListener('click', () => { try { if (window.parent && window.parent !== window) { if (window.parent.clearAnimation) { window.parent.clearAnimation(); return; } } } catch(e){ console.warn('close action failed', e); } });
+  })();
+</script>
+
+</body>
+</html>

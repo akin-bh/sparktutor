@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SparkTutor — AI Science Teacher</title>
+    <!-- Favicon and touch icon (uses project logo) -->
+    <link rel="icon" href="public/images/logo/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="public/images/logo/logo.png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    
+    <!-- Top header / brand -->
+    <header class="site-header">
+        <div class="container">
+            <div class="brand">
+                <div class="brand-logo" aria-hidden>
+                    <!-- Using the colorful SparkTutor logo -->
+                    <img src="public/images/logo/logo.png" alt="SparkTutor logo" />
+                </div>
+                <div>
+                    <div class="brand-title">SparkTutor</div>
+                    <div class="brand-subtitle">AI Teacher</div>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#hero-why" class="nav-link">About</a>
+                <a href="#team" class="nav-link">Team</a>
+            </nav>
+
+            <div class="header-actions">
+                <button id="startBtn" class="primary" onclick="init()">Start Session</button>
+            </div>
+        </div>
+    </header>
+
+        <!-- Demo placeholder: Product Demo on top, video centered, caption and actions below -->
+        <section id="demo-placeholder" class="demo-placeholder" aria-label="Product demo">
+            <div class="demo-inner demo-large">
+                <!-- Top: Product Demo title and topic -->
+                <div class="demo-header">
+                    <h2>See SparkTutor’s Prototype (MVP) </h2>
+                    <!-- <h3 class="demo-topic">Watch Demo Video</h3> -->
+                </div>
+
+                <!-- Middle: Embedded video centered -->
+                <div class="demo-media" role="group" aria-label="Demo video">
+                    <!-- Direct embed iframe; replace src with desired YouTube embed URL -->
+                    <iframe class="demo-iframe" width="560" height="315" src="https://www.youtube.com/embed/4j6ke9dORpE?rel=0&showinfo=1&controls=1" title="Demo video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+
+                <!-- Bottom: caption and actions -->
+                <div class="demo-content">
+                    <p class="lead">This interactive demo showcases SparkTutor's core features and user experience. It represents our Minimum Viable Product (MVP). It is a functional prototype demonstrating the app's concept, design, and primary workflow.</p>
+                    <p class="lead"><strong>🔊 Make sure to turn up your volume to hear the full audio experience!</strong></p>
+                    <div class="demo-actions">
+                        <a class="primary" href="https://www.youtube.com/watch?v=4j6ke9dORpE" target="_blank" rel="noopener">Open on YouTube</a>
+                        <a class="btn" href="#hero-why">Learn more</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+ <div class="voice-controls" role="region" aria-label="OpenAI API Info">
+        <div class="ai-teacher-label">The Below sections only fully functions with OpenAI API --</div>
+        <div>API is turned off for this session.</div>
+    </div>
+    <!-- Main Content Section -->
+    <div class="main-content">
+        <!-- Animation Selection Sidebar -->
+        <div class="sidebar">
+            <!-- Grade Level Selector -->
+            <div class="grade-selector">
+                <h4>📚 Grade Level</h4>
+                <div class="grade-buttons">
+                    <div class="grade-btn active" onclick="selectGrade('6-8')">6-8</div>
+                    <div class="grade-btn" onclick="selectGrade('9-10')">9-10</div>
+                    <div class="grade-btn" onclick="selectGrade('11-12')">11-12</div>
+                </div>
+            </div>
+            
+            <!-- Math Section -->
+            <div class="subject-section">
+                <div class="subject-header math">
+                    <span class="subject-icon">📐</span>
+                    <h3>Mathematics</h3>
+                </div>
+                
+                <!-- Math Animations (AI Connected) -->
+                <div class="animation-option" onclick="selectAnimation('ladder')" id="ladderOption">
+                    <h4>🪜 Ladder Safety</h4>
+                    <p>Pythagorean Theorem</p>
+                </div>
+                
+                <div class="animation-option" onclick="selectAnimation('tree_height')" id="treeHeightOption">
+                    <h4>📏 Tree Height</h4>
+                    <p>Similar Triangles</p>
+                </div>
+                
+                <div class="animation-option" onclick="selectAnimation('integration')" id="integrationOption">
+                    <h4>📊 Integration</h4>
+                    <p>Area Under Curve</p>
+                </div>
+            </div>
+            
+            <!-- Science Section -->
+            <div class="subject-section">
+                <div class="subject-header">
+                    <span class="subject-icon">🔬</span>
+                    <h3>Science</h3>
+                </div>
+                
+                <!-- Science Animations -->
+                <div class="animation-option" onclick="selectAnimation('photosynthesis')" id="photosynthesisOption">
+                    <h4>🌱 Photosynthesis</h4>
+                    <p>Plant Biology</p>
+                </div>
+                
+                <div class="animation-option" onclick="selectAnimation('airplanes')" id="airplanesOption">
+                    <h4>✈️ How Planes Fly</h4>
+                    <p>Bernoulli's Principle</p>
+                </div>
+                
+                <div class="animation-option" onclick="selectAnimation('projectile')" id="projectileOption">
+                    <h4>🚀 Projectile Motion</h4>
+                    <p>Physics & Gravity</p>
+                </div>
+                
+                <div class="animation-option" onclick="selectAnimation('moon')" id="moonOption">
+                    <h4>🌙 Moon Phases</h4>
+                    <p>Astronomy</p>
+                </div>
+            </div>
+            
+            <!-- Geography Section -->
+            <div class="subject-section">
+                <div class="subject-header">
+                    <span class="subject-icon">🌍</span>
+                    <h3>Geography</h3>
+                </div>
+                
+                <!-- Geography Animations -->
+            </div>
+            
+            <!-- Clear Selection -->
+            <div class="animation-option" onclick="clearAnimation()" id="clearOption" style="background: #fef2f2; border-color: #fca5a5; margin-top: 16px; color: #dc2626;">
+                <h4 style="color: #dc2626;">❌ Clear Board</h4>
+                <p style="color: #b91c1c;">Hide Animation</p>
+            </div>
+
+            <!-- voice-controls removed from sidebar and will be placed below the whiteboard to avoid overlap -->
+        </div>
+        
+        <!-- Whiteboard Section -->
+        <div class="whiteboard">
+            <div class="whiteboard-empty" id="whiteboardEmpty">
+                Whiteboard
+            </div>
+            <!-- voice-controls removed from inside the whiteboard to avoid overlaying the iframe -->
+            
+            
+            <!-- Animation Containers (single iframe) -->
+            <div id="animationContainer" class="animation-container hidden">
+                <iframe id="animationIframe" class="animation-iframe" src="" title="Animation"></iframe>
+            </div>
+        </div>
+
+    </div>
+    <!-- Voice Controls: moved out of the main-content so they render below the board and won't overlay -->
+    <div class="voice-controls" role="region" aria-label="AI teacher controls">
+        <div class="ai-teacher-label">AI Teacher</div>
+        <button id="startBtnBelow" class="primary" onclick="init()">Start Session</button>
+        <button id="stopBtnBelow" onclick="stopSession()">Stop</button>
+    </div>
+
+    <!-- Info Section -->
+    <div class="info-section">
+        <div class="status" id="status">Click Start to begin</div>
+        <!-- <div class="realtime-debug" style="margin-top:10px;padding:10px;background:#f7fafc;border:1px solid #e2e8f0;border-radius:8px;">
+            <strong>Realtime Debug</strong>
+            <div style="display:flex;gap:12px;margin-top:8px;align-items:center;flex-wrap:wrap;">
+                <div><small>DataChannel:</small> <span id="dcStatus" style="font-weight:700;color:#d97706">closed</span></div>
+                <div><small>Last function:</small> <span id="lastFunctionCall">—</span></div>
+                <div><small>Last incoming:</small> <span id="lastIncoming">—</span></div>
+            </div>
+        </div> -->
+    
+    <!-- <div class="function-log" id="functionLog">
+        <strong>🔧 Function Calls:</strong>
+        <div id="functionCalls">No function calls yet...</div>
+    </div> -->
+    
+    <!-- <div class="log" id="log"></div> -->
+    <script src="js/main.js" defer></script>
+        <!-- Hero: Why SparkTutor Matters + About -->
+        <section id="hero-why" class="hero-why">
+            <div class="hero-inner">
+                <div class="hero-top">
+                    <div class="hero-logo">
+                        <img src="public/images/logo/logo.png" alt="SparkTutor logo" />
+                    </div>
+                    <div class="hero-copy">
+                        <h1>Why SparkTutor Matters</h1>
+                        <p class="lead">Interactive animations + conversational AI = deeper understanding. We make learning visible, personal, and ready for the classroom.</p>
+                        <div class="hero-ctas"><button class="primary" onclick="init()">Try a lesson</button> <a class="btn" href="#about">Learn more</a></div>
+                    </div>
+                </div>
+
+                <div class="why-grid">
+                    <div class="why-card">
+                        <div class="why-icon">🤖</div>
+                        <h3>Personalized AI Tutor</h3>
+                        <p>Adaptive conversations and hints that meet each student where they are.</p>
+                    </div>
+
+                    <div class="why-card">
+                        <div class="why-icon">🔬</div>
+                        <h3>Visual & Interactive</h3>
+                        <p>Simulations and animations turn abstract concepts into hands-on experiences.</p>
+                    </div>
+
+                    <div class="why-card">
+                        <div class="why-icon">📊</div>
+                        <h3>Actionable Insights</h3>
+                        <p>Classroom-ready reports and simple metrics help teachers monitor progress.</p>
+                    </div>
+
+                    <div class="why-card">
+                        <div class="why-icon">⚖️</div>
+                        <h3>Standards-aligned</h3>
+                        <p>Activities designed to align with common learning standards and outcomes.</p>
+                    </div>
+
+                    <div class="why-card">
+                        <div class="why-icon">🧭</div>
+                        <h3>Curriculum-aligned Lessons</h3>
+                        <p>Ready-made lesson plans and assessments that save teacher prep time.</p>
+                    </div>
+
+                    <div class="why-card">
+                        <div class="why-icon">⚡</div>
+                        <h3>Real-time Feedback</h3>
+                        <p>Instant hints and corrections help learners iterate and improve quickly.</p>
+                    </div>
+
+                    <div class="why-card">
+                        <div class="why-icon">🧪</div>
+                        <h3>Classroom-ready Activities</h3>
+                        <p>Activities designed for group work, labs, and interactive demonstrations.</p>
+                    </div>
+
+                    <div class="why-card">
+                        <div class="why-icon">🔒</div>
+                        <h3>Scalable & Secure</h3>
+                        <p>Built to scale with appropriate privacy and security for schools.</p>
+                    </div>
+
+                    <div class="why-card">
+                        <div class="why-icon">💬</div>
+                        <h3>Multimodal Explanations</h3>
+                        <p>Text, visuals, and examples to match different learning styles.</p>
+                    </div>
+                </div>
+
+                
+            </div>
+        </section>
+
+        <section class="team-section" id="team">
+            <h2>Meet the Team</h2>
+            <p class="lead">Passionate about creating interactive learning experiences. Our small team blends engineering, curriculum design, and UX to build engaging science lessons.</p>
+            <div class="team-grid">
+                <div class="team-card">
+                    <span class="avatar"><img src="https://anujbhattarai.com.np/assets/png/akin-bh.png" alt="Anuj avatar"></span>
+                    <h3>Anuj Bhattarai</h3>
+                    <p class="role">Developer</p>
+                    <p class="bio">Anuj builds the interactive simulations and real-time AI integration. Passionate about education and scalable learning experiences.</p>
+                    <div class="cta"><a class="btn" href="#">GitHub</a></div>
+                </div>
+
+                <div class="team-card">
+                    <span class="avatar"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxQSEhUTEhAWFhUWFhUXGRYYFxcYGBcaFxcXFxUXGBYYHSggGBolHRcWITEhJSkrLi4uFx8zODMsNygtLisBCgoKDg0OGxAQGisdHR0rLS0tKy0tLS0tLS0tLS0tLS0rLS0tLS0tLSstKy0rLS0tLS0tLS0tLS0tKy0tLS03Lf/AABEIAN8A4gMBIgACEQEDEQH/xAAcAAEAAQUBAQAAAAAAAAAAAAAAAwIEBQYHCAH/xABEEAABAwIDBAYIBAQEBQUAAAABAAIRAyEEEjEFQVFhBgcicYGREzJCobHB0fAUUmLhI0Oy8RUkM3KCoqOzwgglU2OT/8QAGQEBAQEBAQEAAAAAAAAAAAAAAAECBAMF/8QAIREBAQACAgMAAwEBAAAAAAAAAAECEQMhBBIxQVFxYRP/2gAMAwEAAhEDEQA/AO4IiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiw3SrpNQ2fQNau/jkpgjPUd+VgOvM6AXK899NesTF7QJaXehobqNMm+t6j7F5g6Wby3oO29IesvZ+EJa6v6WoDBp0QKjgRrJkNb3FwK1LE9elH+XgKp4Z6jGf05lw0HckoO5s69KPtYCqO6own3wtj2D1r7OxMNdVOHefZrgMH/wCgJZ5uBXmnNzCpcVR7Oo1WvaHMcHNIkOBBBHEEaqteSuivSzF7OfnwtaG6uou7VN/GW7j+psFelOgvSuntPCtxDBkcCW1KZMljxqJ3gggg8CoNhREQEREBERAREQEREBERAREQEREBERAREQFZ7Y2nTwtCpXrOy06bS5x5DcBvJ0A4kK8XGP8A1E7dLW4fBtd6xNaoAdQ3s0gRwnOe9g4IOY9LuklTaGKfiKtpsxm6nTB7LBz3k7ySsMPvRQNeJuFmtjbEqYj1LCdfefglsk3VmNvUYh5vcDwsvkrpWG6uZaC59+Sno9XlMHtOJXjefF6zgycxa0nQK4bs6pE5T3b/ACXWsL0LoM/lg96v/wDAqbRAYB3BeWXlfqPTHx/3XDa+ZuoiFsnVx01fszFekMmhUhtZg1LROV4H5mkkjkSN62Xb3RpvaIA0XM69LK4jgV7cXLM48eTj9HtKlUDmhzTIIBB4giQVUte6vMSyps3CPpsyNNBgDZJy5RlIBcSSJBiTothXq8xERAREQEREBERAREQEREBERAREQEREBeaevepm2s8GOxRot8wXeF3Fell5c65p/wAYxc//AE/9img1DDUMxAAknRdr6LbGFCjTa4Xyye91z8lqnQPY7G4U4qo3MZcWt45ZaPMys1V2di8RDnVPRDgCZHCBuXLy5e11+I6+LH1m/wA1vRqMbALh3SpQ0HRc7w+wn0zfEF15/ve/etx2NVIZBMleOUn7esuX5jJCmoq1ILC9JsbUDMtJ2Vx3gwfPctOpYjaTdKwc38rnAnzdf3qTCZflLnZ+G7Y+kC0yJsfguGbZpxVeOZHvXTcNtqsxwbXacpsZEFh4yLOauc9LaRZi6rT+aR3G4+K9fHx9crK8ua7x29BdR+0fTbKpt30H1KJ8Dnb/AMr2rflzfqDwuTZZfP8Aq4iq/ugMpx/058V0hdjlEREBERAREQEREBERAREQEREBERAREQF5568ej1Q46riWAFppUnOA9YQ0tLo/LDRdehloXWPgHPbXIHr4WoxvN2V1vePNYzyuM3HpxYTLLVar0FogYHD7+yT4kn6qjbbMU4vyENaGnLEEl26ZEAa3AJvZZPoLQBweH4ejathxWAaRcLi3fa13YyeunJsHhcQxrnVqrvSZ+zJBGUzN8oJPqxEgwbcOjbEoZWCdY+S+Utm0muzZG5txOvgsph2CLKZ32rWOPrGkdJy8P7JAkgX56nw4LX6OJxjcQWU8ppSRmIBkTrlDg4dndx5LoW1sI1zjmaCDaCocNsCmLgkDhJUwy11pjPDbA7Mz1mEVqRa4W3EeC0LrEwpOMAaCSaTSY5F0n3LtD8CGthui0/EYIOxmKcRJGFpMj/e+rN93qjzV487jlaznh7dN/wCprDGnsfCg6uFR/g+q8j3Qt1WN6N4f0eFosAjLTbaIi0xCyS+hLuOAREVBERAREQEREBERAREQEREBERAREQFhOlVLMxv+4ieEj9lm1a7SwfpWFswdQeBCznN42N8eXrlK5t0fBpCrTPsVqkRpDjnEcu0pukG3fQ0iddwHE7gFc4/Zb8PWOdzSKsOGWfZAa4Gd+nmsXtvAekZmAlzCHCfeuHLeN1XfjlLNw2LnDBVquDnuvEwBPsj671mP8VY1txlvv59y0XYu131qj6LaUup3c5zi0yZLYa0HswAs56KuGmcPIAAOVxvOlnDerY3O4vMVtambwbmNytsFi30qhaTmpmCP08b8FisRhqgcc2Ed4u0tNoHBWmwsea9TMwENa4se0+y4RIB0NljVnbN6b3WxgIELE9EsGauLrPeAW1KrWDm2kBm8Jze9fKzsoK2jodsSpTFOo8BohzgAZJzyRIi1nK8UuWTx5MpI29ERfRcQiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgxPSXAeloktEvZ2m8+LfEe+FpNCqHC2hC6YuMbbrOwGJeCJw5qvg/wDxy4w0j8vBc3kYb1XR4+etxnqOAaCHt7LmiMw1I4cwpaWJqUw4F+aSDJbcRAGgvp71XgqzajA5rgbTqo8U0TF/kufH/XX1fqDEVKtUmK0NO4NAixHrG+/dwUNDCMo0wxjQ0CdBEk6k8yr2hTaBqZWH6QbVZSab3sAN5J0AHFZzu+ozbJ0usHhjiazKI9o9o8GN9c8uHeQupNEWC1Dq1wn8B9Z4/iVHkH9LWgZWDlJJPEnuW4Lt4MPXH+uLky9shERezzEREBERAREQEREBERAREQEREBERAREQERWe19p08NRfXrPy02CSfcABvJJAA3koIOkm3KWCw78RWMNYLDe93ssbzJ8rnQLnWCxo2hQ9LVpgDEAuLNQA6YbO+BAlc56xOmFTaFVz3S2jTzCjT/KD7buLyNeGg3k9D6LYf0eEoN4Uqf8ASJXN5XWM/ro8XvK1rlXZ2MwDicNNaiT6mr2iNP1DuWD2h01q3zMcwmwzAg+9dVcsdjcKHaiVz48v7m3ReP8AVc+wfSqu+BRpve6IEC0neToPFZrZOyX5vT4l+eqdGj1Wd3F3PyWd/DZRYKttOF558u/k0kw/fa76E9OmU8admVmhubKaNTi5zcxpv5kzB8OC6kvKHWNTLMa14kZmMIcLEFriLEaEQCu4dVXToY6iKFZ/+aptEzY1mj+YOJ/MBvvoV9Li7wn8cXJ1lW/oiLbIiIgIiICIiAiIgIiICIiAiLXun22vwmBrVWuyvLclM787+y0juu7/AIUKyG1tvYbCicRiadLk5wBPc3U+AWmbT64MFTMUmVq2tw0MZbnUIPk0riFV7nuc6C4yA5xBcXHKACXG8kRqonO3Q373+a1pj2rqOO66KxP8HBU2jcXvc895a0N+K17G9a20n6VadPd/DpN85fmK00uF+yQqd1jrb6/fNE7ZLG9MMdWkVMfiCDqA8sBjTssgBY30z3CX1HPO4vc53dqTFp81BknUWVxUYIHnu1P7R71V0tMZ6h5ru+xO1hqR/Qz+kLhmIp6ALt/Q9xOGpA/kb8IXH5fenX43S8eCrSu87jCytSkFYvokrhvTt2swCVVG5XbMMUbTgysWMNE6xdjGsymWtlzS4eBaSf6QVz/A1i3K5pLXMIc1wsQRcEHcV6Aw2z/TOdaQxpJPNwLQPIuPguNdK9j/AIauWCwj5nTwy+a+l4u/Ttw+Rr2bJh+t3aTA0F1B4iJqUjJi3aLHtv3Qsxhuu+uD/EwVJ3+yo5vlLXLllJkywnXTWx3eeijAixmQupz7rumz+uzCugVsNWp825KjR7w7yBWzYLrI2ZUgDGsaTH+oHU9ebwB715mEbmqrKeSaPavXOD2jRrCaVanUHFj2u/pKuV49ZY5gYcN4sR3EXW39EusHF4OrTDq9StQHr0qhzdm2bI50lrgJIvHK6aX2ek0UOCxbK1NlWm4OY9oc1w0IcJBUyy2IiICIiAiIgLiPXJt0VsW3Ct9XDg5+BqVGtdpvAbAn9bl25eXekGK9LjcU9xnPWeQ6ZBaHOyx4QOXgrGcmLp5gXlu5wAuZktG8cpXw4h2+/CQHe8g/ZVDGiXdr2z8By5L69xG+Y7j9VWVJe0+zEX7J+RVNdgmzvOxnffQ/sqc44KIDmqqZjHNIOUkb99t8EKYPBMkWkmPkoqbBlmLyPIyvrtLm4+9EF1smh6SuxkTJvHdJPxXcMBghTYALACFx/obP47DkCO3/AOLv7L0RV2TIllp9k6eBXLz8dy7j34OWY9Vrr2lQsaSVmK2yqm5k9xH1VNLZFX8kd5H1XHeLLfx2f9cdfVnkVDcIXuDWiSfvyWcobDd7bwBwFz5nT3rLYXBtpiGiOJ3nvK9MfHt+vLPyJJ12t9m7ObSp5dSbuPEn5blxProptGJYB+U/H+3ku8VDAXCeulv+ZpGNWu9xb9V24zXTittu65y4AXPcVT6QuOaIGm+8Wkqo6c9fP+yqIdGp8CvVlR6Mnj996lbSEXcPefcFG0k3jzlVMMG5++CI+iNbmNdAOSp9oRbXfy/ZVWHNUTdu68T3goPQfUrj/SbO9GTJoValPwMVG+HbjwW/Li/UTthlN9bCvIaauWpTLiAXuaMr2gHUxlIjcCu0LNemPwREUUREQERaJ036yqeBq/h6VE168S4ZsjKYIkZnQSXReAPEIlulr1v9L34Sk3DUHFtaq3M541ZTktOXg50ETuDTvhcOwz5L2CImQHEC++DxMe5ZXpV0iqY+uatVrQ/LlY1oMBoNqYm5NyZO8nSYWIbTk5gYgXH7LbP18bSF5ImTYmD4e7eo6tFzRLgRP3r+6ppA5eMkwPE+K+F5m0jdCCrOY5H4D953qJsdxKuXVAbQDumMptpp9F8JbqC4ciMwjvH0QfcO2RrOo8dQvjHDcJsvlCjqZbYzMwN2sqY02tPrTc2bpxFzu03IMl0TeRjKBnSoPmvT+EfmY08QvMfRipGLotADZqDS58XG+5em8IIY3uWaYpoVJICOdCjaJN1lbUmYRKja+RKoxDpIb5qRyFqitoFxTrrBFalHCp59j912vEblyLrq7NSgYBBzaiR7Plorj9ZrktVwm40geSqDZmDu8VU3KTJlp5CQfDUIKOuUh3cb+RWxa0o4qWRHMKgULTLQeBN7clO4NsZJngN+/VB8LiRIGlvp81HUebHWCLG41UjagbIDfFxnnpYcEOKJBbIgg2AA+AQUYioSZBM7joRF2kcCI3cAu29TvT5+KH4PFPLq7QTTqHWoxsS153vHHeOYM8Nq1LAgW1V7sXar8LXp4il/qU3h4G46hzTyc0kHvUHrhFj+j+2KeMw9LE0j2KrQ4De06OaY9ppBB5hZBZegiIg1Hp708obNZlMvxDmOcykNwuA+p+VkiOJvG+PO9faNWo41nnO+p2nneS67jyuTor7pdtKpi8Q/E1P5oyGNGW7NMTwg9+u9YahVhoJ3ADkYtHuWvjH19xdTRzfPgdbcF9e8PkxFpKgdXzTIud6owokkd090x8wirttMQL3hV05F4+93zVbsOToA6/sm/lqqC0ttMHWDYjh981UA8XlvL7mUqNECCvjnRuXxsOPD7ugUmxOn9wpIBiTu+H9lFRaC1xneDCrbA8/iPqPeiM50TA/GYcR/MavTdL1R3BeZuhbpxuGAH8zXua4/JelqbrDuWclityF0CSo806K3xtX2R4rIrw9ySd6nKt6LoCkzqD7WNwuX9dlP+FRfGjnDulpj3wum1joueddDf8ow8Kg+BVn1K4c2DMGFX6IxpI4/uFGY4alTNbwOi9BbUgY96ry2N/JUskG/H+6+wGm54qI+gjvSqLggc/qvjncAqH1DGu82CKUjmhsaE24o7U8N3P7+StTUgQLT5/fJTU2F1v2A5ngEV2zqA26DRq4R72hzXekpt0Ja4fxI4wRP/GuuryHhsS6k9j6L3Newtc2oLEOboQI01sZmb8F2Tq260X4mt+Fx2QPcctKq0ZQ935HiYDjuIgHSJiZYsrrCIijTyHUrZpEwPjwPerRjrzA/UCJHfCroHMOYUGKdBMePPmtsRW+lPqnQTB+XFUYcSZngrVtcr7hqvaAPFTbTMQdIUxxJn1jEzDu0LWGvJR0SRJB4/RR+libffgqykdVYZlkc2Ej/AJTI4r76JpFnDh2hF+8WKtZB3x7/AIKtwsL849333qKlwtF0uAae1Glx5hfadKJkgciSTbkAeat6TyJBtML7RJnSP3VRs3QKDj8OLntm9gB/Ddu3r0cx1gvOHQBn/uGHJNw51u5jxusvRNKpayzkRM9+UcyrQDeUqEzcqmo5ZVKKkKamSd3mrekrpjbIj5XOi0Trej8CSRMPbvjUgfNbviHLRetszs94/VT/AO4xJ9SuGw0xBj/d9R4blV6I6wYO8XGvJWx11VdOqRcSNbiy9EKVMu0B113X71I+kB7Te4XNtdFbseTzUk2vb7jeoqrs8Ce8x8FFUq2IDQO7XzXxt7DzM/BQuJ0i8IqKjcyrp7wPVGug+vFWFGVcU3x9+Si2J7jmToFMyGxx98zMq3oEzOpPwKuqNI3Og3uPy4nkrGbGws6ebSaABjKsAQJLSYGkkiT3lfVgfSN/K885RVnVWbLCR/dY+vUlykp1irWtqs7eo4q82RgKtd+WjSdUc0F7g0Ewxt3OMaAfMLZOqXoozaWPFKtejTpuq1ACWlwBDWtBFxLnNmNwK9HO2BhsHhMQ3C4enSBo1JyNALoY6MztXeJUV5gykN5GI4Rc2PkqH1DGgPff4r7QrFrWwYkeB0GhSvWE3a3wlvwW2EL3ibiFW8DceS+MyzMuHkV9NEkSL8dxUVGXGfBUvJm9lSQZ5zHmvgol3398UG3dXkfj6R4Zj5gD5r0Rh3dkQvPnV/h8uIzGLMHveOX6V3bZNaW3WaRdOF1HVN1UTdQuN1Bc4fVXtQwFDgae9Q7QxIBhER4iotJ6zDmwdRv6Z8nNd8ltJrytP6ZOzsqM4tc3zBVhXDjdVEkNJ8AlbDOG4a6g/VQvfZaEjXkCZju+qA8RfjvUYKkzSdJQSWyyCDNufE/IKGo8geBUtSlGtu5XvRljX4zCsexrmPxOHY5rhIc11VgcCOBBKDXmVbKthWwdYXRCrs3FOpvg03lzqTgR2mTaRq0iQCD4Staa5RtkqJG/XgPmpfSl0AHTQbhyhWOHcVc+kjQKsaTlh/N8EUWZ3JFTT//Z" alt="Pradip avatar"></span>
+                    <h3>Pradip Basnet</h3>
+                    <p class="role">Designer</p>
+                    <p class="bio">Pradip designs learning paths and assessment flows that ensure students build intuition alongside conceptual understanding.</p>
+                    <div class="cta"><a class="btn" href="#">GitHub</a></div>
+                </div>
+
+                
+            </div>
+        </section>
+
+        <footer class="site-footer">
+            <div class="footer-container">
+                <div class="footer-brand">
+                    <div class="footer-brand-header">
+                        <img src="public/images/logo/logo.png" alt="SparkTutor Logo" class="footer-logo">
+                        <div class="brand-footer">SparkTutor</div>
+                    </div>
+                    <p>AI Teacher: interactive animations & conversations designed to spark curiosity and understanding.</p>
+                </div>
+
+                <div class="footer-links">
+                    <div>
+                        <h4 style="color:#e6eef8; margin:0 0 10px;">Learn</h4>
+                        <ul>
+                            <li><a href="#about">About</a></li>
+                            <li><a href="#team">Team</a></li>
+                            <li><a href="#contact">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 style="color:#e6eef8; margin:0 0 10px;">Resources</h4>
+                        <ul>
+                            <li><a href="README.md">Docs</a></li>
+                            <li><a href="#">Integrations</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="footer-newsletter">
+                    <p style="font-weight:700; color:#ffffff; margin:0 0 8px;">Stay in the loop</p>
+                    <p style="margin:0 0 12px; color:#aebecd;">Get updates about new animations and features.</p>
+                    <div class="newsletter-row">
+                        <input type="email" id="newsletterEmail" placeholder="Your email" aria-label="Email for newsletter">
+                        <button id="subscribeBtn">Subscribe</button>
+                    </div>
+                    <div class="socials" aria-hidden>
+                        <a href="https://github.com/akin-bh" title="GitHub" target="_blank" rel="noreferrer noopener"> <!-- GitHub SVG -->
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.38 7.86 10.9.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.69-3.88-1.54-3.88-1.54-.53-1.35-1.3-1.71-1.3-1.71-1.06-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.75-1.56-2.56-.29-5.26-1.28-5.26-5.7 0-1.26.45-2.29 1.19-3.1-.12-.3-.52-1.5.11-3.13 0 0 .97-.31 3.18 1.18a11.02 11.02 0 0 1 2.9-.39c.99 0 1.99.13 2.92.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.63.23 2.83.11 3.13.74.8 1.19 1.84 1.19 3.1 0 4.43-2.71 5.4-5.29 5.69.42.36.8 1.07.8 2.16 0 1.56-.01 2.82-.01 3.2 0 .31.21.68.8.56A10.51 10.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z" fill="currentColor"/></svg>
+                        </a>
+                        <a href="https://twitter.com" title="Twitter" target="_blank" rel="noreferrer noopener"> <!-- Twitter SVG -->
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 5.92c-.61.27-1.26.45-1.94.53.7-.42 1.24-1.08 1.5-1.87-.66.4-1.4.7-2.18.86A3.39 3.39 0 0 0 16.5 4c-1.86 0-3.37 1.52-3.37 3.39 0 .27.03.53.09.78C10.1 8.06 6.86 6.1 4.58 3.17c-.3.52-.47 1.12-.47 1.76 0 1.21.62 2.28 1.56 2.91-.58-.02-1.12-.18-1.6-.44v.04c0 1.7 1.21 3.12 2.82 3.44-.29.08-.6.12-.92.12-.22 0-.44-.02-.65-.06.45 1.4 1.75 2.42 3.3 2.45A6.82 6.82 0 0 1 3 18.57a9.62 9.62 0 0 0 5.2 1.53c6.24 0 9.65-5.17 9.65-9.66v-.44c.67-.48 1.24-1.08 1.7-1.77-.61.27-1.28.47-1.96.56z" fill="currentColor"/></svg>
+                        </a>
+                        <a href="https://www.linkedin.com/in/anuj-bhattarai/" title="LinkedIn" target="_blank" rel="noreferrer noopener"> <!-- LinkedIn SVG -->
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.7v1.56h.05c.52-.98 1.8-2.02 3.7-2.02 3.96 0 4.69 2.6 4.69 5.98V21H17v-5.06c0-1.2-.02-2.74-1.67-2.74-1.68 0-1.94 1.32-1.94 2.67V21H9z" fill="currentColor"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-copyright">© 2025 SparkTutor - Built with care for learners everywhere</div>
+            </div>
+        </footer>
+
+        <button id="backToTop" title="Back to top" style="position:fixed;right:18px;bottom:18px;width:44px;height:44px;border-radius:10px;border:none;background:linear-gradient(90deg,#06b6d4,#2563eb);color:white;display:none;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(37,99,235,0.18);cursor:pointer;">↑</button>
+
+    <script src="js/ui.js" defer></script>
+</body>
+</html>

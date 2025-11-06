@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🪜 Ladder Safety - Pythagorean Theorem in Action!</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    * { 
+      box-sizing: border-box; 
+      margin: 0;
+      padding: 0;
+    }
+    
+    body { 
+      font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', Arial, sans-serif;
+      background: linear-gradient(to bottom, #87CEEB, #90EE90);
+      color: #333;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .container {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      height: 100vh;
+      gap: 15px;
+      padding: 15px;
+    }
+    
+    .controls {
+      background: white;
+      border-radius: 15px;
+      padding: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+    
+    h1 {
+      font-size: 24px;
+      color: #FF6B35;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .control-group {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+    
+    .control-group h3 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .slider-container {
+      margin: 15px 0;
+    }
+    
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #ddd;
+      outline: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #FF6B35;
+      cursor: pointer;
+    }
+    
+    .safety-indicator {
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      font-weight: bold;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .safety-indicator.safe {
+      background: #d4edda;
+      border: 2px solid #28a745;
+      color: #155724;
+    }
+    
+    .safety-indicator.warning {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      color: #856404;
+    }
+    
+    .safety-indicator.danger {
+      background: #f8d7da;
+      border: 2px solid #dc3545;
+      color: #721c24;
+    }
+    
+    .calculation-box {
+      background: #e3f2fd;
+      border: 2px solid #2196f3;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 15px 0;
+    }
+    
+    .calculation-box h4 {
+      color: #1976d2;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    
+    .formula {
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+      margin: 10px 0;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .stat-card {
+      background: white;
+      border: 2px solid #FF6B35;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+    
+    .stat-card .label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    
+    .stat-card .value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #FF6B35;
+    }
+    
+    .animation-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    
+    .info-overlay {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.95);
+      padding: 15px 25px;
+      border-radius: 15px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      font-size: 14px;
+      font-weight: bold;
+      text-align: center;
+      max-width: 80%;
+    }
+
+    /* Consistent small topbar for animations */
+    .anim-topbar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      z-index: 30;
+      font-weight: 700;
+    }
+    .anim-topbar .anim-title { color: #333; font-size: 14px; }
+    .anim-topbar .anim-controls { display:flex; gap:8px; align-items:center; }
+    .anim-topbar .mini-btn { background:#f3f4f6; border:none; padding:8px 10px; border-radius:8px; cursor:pointer; }
+    
+    .tip-box {
+      background: #fff3e0;
+      border-left: 4px solid #ff9800;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    
+    .tip-box h4 {
+      color: #f57c00;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .tip-box p {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="controls">
+    <h1>🪜 Ladder Safety Calculator</h1>
+    
+    <div class="control-group">
+      <h3>🏠 Setup Your Ladder</h3>
+      
+      <div class="slider-container">
+        <div class="slider-label">
+          <span>🏠 Wall Height</span>
+          <span id="wall-height-value">12 ft</span>
+        </div>
+        <input type="range" id="wall-height" min="6" max="20" value="12" step="0.5">
+      </div>
+      
+      <div class="slider-container">
+        <div class="slider-label">
+          <span>📏 Distance from Wall</span>
+          <span id="distance-value">3 ft</span>
+        </div>
+        <input type="range" id="distance" min="1" max="8" value="3" step="0.1">
+      </div>
+    </div>
+    
+    <div id="safety-status" class="safety-indicator safe">
+      ✅ SAFE - Good ladder angle!
+    </div>
+    
+    <div class="calculation-box">
+      <h4>📐 Pythagorean Theorem</h4>
+      <div class="formula">a² + b² = c²</div>
+      <div class="formula" id="calculation">3² + 12² = 12.4²</div>
+      <div style="font-size: 12px; color: #666; text-align: center; margin-top: 8px;">
+        distance² + height² = ladder²
+      </div>
+    </div>
+    
+    <div class="stats">
+      <div class="stat-card">
+        <div class="label">🪜 Ladder Length</div>
+        <div class="value" id="ladder-length">12.4 ft</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">📐 Ladder Angle</div>
+        <div class="value" id="ladder-angle">76°</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">⚖️ Weight on Base</div>
+        <div class="value" id="base-force">Normal</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">🎯 Safety Rating</div>
+        <div class="value" id="safety-rating">Excellent</div>
+      </div>
+    </div>
+    
+    <div class="tip-box">
+      <h4>💡 Safety Tip</h4>
+      <p id="safety-tip">
+        The 4:1 rule: For every 4 feet of wall height, place the ladder base 1 foot away from the wall. This gives the safest angle of about 75°!
+      </p>
+    </div>
+  </div>
+  
+  <div class="animation-container">
+    <div class="anim-topbar" role="toolbar" aria-label="Animation controls">
+      <div class="anim-title">🪜 Ladder Safety</div>
+      <div class="anim-controls">
+        <button class="mini-btn" id="playPauseBtn">⏯️</button>
+        <button class="mini-btn" id="closeBtn">✖</button>
+      </div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <div class="info-overlay" id="info-overlay">
+      Drag the ladder base to see how the angle and safety change!
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// Get control elements
+const wallHeightSlider = document.getElementById('wall-height');
+const distanceSlider = document.getElementById('distance');
+
+// Animation state
+let isDragging = false;
+let dragOffset = { x: 0, y: 0 };
+
+// Ladder properties
+const ladder = {
+  baseX: 0,
+  baseY: 0,
+  topX: 0,
+  topY: 0,
+  length: 0,
+  angle: 0
+};
+
+// House and ground properties
+const house = {
+  x: 0,
+  y: 0,
+  width: 60,
+  height: 0
+};
+
+const ground = {
+  y: 0
+};
+
+// Calculate ladder properties
+function calculateLadder() {
+  const wallHeight = parseFloat(wallHeightSlider.value);
+  const distance = parseFloat(distanceSlider.value);
+  
+  // Pythagorean theorem: c² = a² + b²
+  const ladderLength = Math.sqrt(distance * distance + wallHeight * wallHeight);
+  const angle = Math.atan2(wallHeight, distance) * (180 / Math.PI);
+  
+  // Update ladder object
+  ladder.baseX = house.x - distance * 30; // Scale for display
+  ladder.baseY = ground.y;
+  ladder.topX = house.x;
+  ladder.topY = house.y - wallHeight * 30; // Scale for display
+  ladder.length = ladderLength;
+  ladder.angle = angle;
+  
+  updateDisplay();
+}
+
+// Update all display values
+function updateDisplay() {
+  const wallHeight = parseFloat(wallHeightSlider.value);
+  const distance = parseFloat(distanceSlider.value);
+  const ladderLength = Math.sqrt(distance * distance + wallHeight * wallHeight);
+  const angle = Math.atan2(wallHeight, distance) * (180 / Math.PI);
+  
+  // Update labels
+  document.getElementById('wall-height-value').textContent = wallHeight + ' ft';
+  document.getElementById('distance-value').textContent = distance.toFixed(1) + ' ft';
+  document.getElementById('ladder-length').textContent = ladderLength.toFixed(1) + ' ft';
+  document.getElementById('ladder-angle').textContent = Math.round(angle) + '°';
+  
+  // Update calculation
+  document.getElementById('calculation').textContent = 
+    `${distance.toFixed(1)}² + ${wallHeight}² = ${ladderLength.toFixed(1)}²`;
+  
+  // Determine safety status
+  let safetyStatus = '';
+  let safetyClass = '';
+  let safetyRating = '';
+  let baseForce = '';
+  let tip = '';
+  
+  if (angle >= 70 && angle <= 80) {
+    safetyStatus = '✅ SAFE - Perfect ladder angle!';
+    safetyClass = 'safe';
+    safetyRating = 'Excellent';
+    baseForce = 'Normal';
+    tip = 'Perfect! This angle (70-80°) provides the best balance of safety and stability.';
+  } else if (angle >= 60 && angle < 70) {
+    safetyStatus = '⚠️ CAUTION - Angle too shallow';
+    safetyClass = 'warning';
+    safetyRating = 'Fair';
+    baseForce = 'High';
+    tip = 'Ladder might slip outward. Move the base closer to the wall for a steeper angle.';
+  } else if (angle > 80 && angle <= 85) {
+    safetyStatus = '⚠️ CAUTION - Angle too steep';
+    safetyClass = 'warning';
+    safetyRating = 'Fair';
+    baseForce = 'High';
+    tip = 'Ladder might tip backward. Move the base farther from the wall for a safer angle.';
+  } else {
+    safetyStatus = '🚨 DANGER - Unsafe angle!';
+    safetyClass = 'danger';
+    safetyRating = 'Poor';
+    baseForce = 'Extreme';
+    tip = 'This angle is very dangerous! Adjust the ladder position immediately.';
+  }
+  
+  // Update safety indicator
+  const safetyIndicator = document.getElementById('safety-status');
+  safetyIndicator.textContent = safetyStatus;
+  safetyIndicator.className = `safety-indicator ${safetyClass}`;
+  
+  document.getElementById('safety-rating').textContent = safetyRating;
+  document.getElementById('base-force').textContent = baseForce;
+  document.getElementById('safety-tip').textContent = tip;
+}
+
+// Draw the scene
+function drawScene() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw sky gradient
+  const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  skyGradient.addColorStop(0, '#87CEEB');
+  skyGradient.addColorStop(1, '#90EE90');
+  ctx.fillStyle = skyGradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw ground
+  ctx.fillStyle = '#8B4513';
+  ctx.fillRect(0, ground.y, canvas.width, canvas.height - ground.y);
+  
+  // Draw grass
+  ctx.fillStyle = '#228B22';
+  ctx.fillRect(0, ground.y - 20, canvas.width, 20);
+  
+  // Draw house
+  drawHouse();
+  
+  // Draw ladder
+  drawLadder();
+  
+  // Draw measurements
+  drawMeasurements();
+  
+  // Draw safety indicators
+  drawSafetyIndicators();
+}
+
+function drawHouse() {
+  const wallHeight = parseFloat(wallHeightSlider.value);
+  
+  // House wall
+  ctx.fillStyle = '#D2B48C';
+  ctx.fillRect(house.x, house.y - wallHeight * 30, house.width, wallHeight * 30);
+  
+  // House roof
+  ctx.fillStyle = '#8B4513';
+  ctx.beginPath();
+  ctx.moveTo(house.x - 20, house.y - wallHeight * 30);
+  ctx.lineTo(house.x + house.width + 20, house.y - wallHeight * 30);
+  ctx.lineTo(house.x + house.width/2, house.y - wallHeight * 30 - 40);
+  ctx.closePath();
+  ctx.fill();
+  
+  // Windows
+  ctx.fillStyle = '#87CEEB';
+  ctx.fillRect(house.x + 10, house.y - wallHeight * 30 + 40, 15, 15);
+  ctx.fillRect(house.x + 35, house.y - wallHeight * 30 + 40, 15, 15);
+  
+  // Door
+  ctx.fillStyle = '#654321';
+  ctx.fillRect(house.x + 20, house.y - 60, 20, 60);
+  
+  // Door knob
+  ctx.fillStyle = '#FFD700';
+  ctx.beginPath();
+  ctx.arc(house.x + 35, house.y - 30, 2, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawLadder() {
+  const angle = ladder.angle * (Math.PI / 180);
+  
+  // Determine ladder color based on safety
+  let ladderColor = '#8B4513';
+  if (ladder.angle >= 70 && ladder.angle <= 80) {
+    ladderColor = '#228B22'; // Green for safe
+  } else if ((ladder.angle >= 60 && ladder.angle < 70) || (ladder.angle > 80 && ladder.angle <= 85)) {
+    ladderColor = '#FFA500'; // Orange for caution
+  } else {
+    ladderColor = '#DC143C'; // Red for danger
+  }
+  
+  // Ladder rails
+  ctx.strokeStyle = ladderColor;
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.moveTo(ladder.baseX - 5, ladder.baseY);
+  ctx.lineTo(ladder.topX - 5, ladder.topY);
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(ladder.baseX + 5, ladder.baseY);
+  ctx.lineTo(ladder.topX + 5, ladder.topY);
+  ctx.stroke();
+  
+  // Ladder rungs
+  ctx.strokeStyle = ladderColor;
+  ctx.lineWidth = 4;
+  const rungCount = Math.floor(ladder.length / 1.5);
+  for (let i = 1; i < rungCount; i++) {
+    const t = i / rungCount;
+    const rungX = ladder.baseX + (ladder.topX - ladder.baseX) * t;
+    const rungY = ladder.baseY + (ladder.topY - ladder.baseY) * t;
+    
+    const perpX = Math.cos(angle + Math.PI/2) * 10;
+    const perpY = Math.sin(angle + Math.PI/2) * 10;
+    
+    ctx.beginPath();
+    ctx.moveTo(rungX + perpX, rungY + perpY);
+    ctx.lineTo(rungX - perpX, rungY - perpY);
+    ctx.stroke();
+  }
+  
+  // Ladder base (safety feet)
+  ctx.fillStyle = '#333';
+  ctx.fillRect(ladder.baseX - 8, ladder.baseY - 5, 16, 10);
+}
+
+function drawMeasurements() {
+  const wallHeight = parseFloat(wallHeightSlider.value);
+  const distance = parseFloat(distanceSlider.value);
+  
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 2;
+  ctx.font = 'bold 14px Arial';
+  ctx.fillStyle = '#333';
+  
+  // Height measurement
+  const heightX = house.x + house.width + 20;
+  ctx.beginPath();
+  ctx.moveTo(heightX, house.y);
+  ctx.lineTo(heightX, house.y - wallHeight * 30);
+  ctx.stroke();
+  
+  // Height arrows
+  ctx.beginPath();
+  ctx.moveTo(heightX - 5, house.y - 5);
+  ctx.lineTo(heightX, house.y);
+  ctx.lineTo(heightX + 5, house.y - 5);
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(heightX - 5, house.y - wallHeight * 30 + 5);
+  ctx.lineTo(heightX, house.y - wallHeight * 30);
+  ctx.lineTo(heightX + 5, house.y - wallHeight * 30 + 5);
+  ctx.stroke();
+  
+  // Height label
+  ctx.save();
+  ctx.translate(heightX + 15, house.y - wallHeight * 15);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = 'center';
+  ctx.fillText(`${wallHeight} ft`, 0, 0);
+  ctx.restore();
+  
+  // Distance measurement
+  const distanceY = ground.y + 30;
+  ctx.beginPath();
+  ctx.moveTo(ladder.baseX, distanceY);
+  ctx.lineTo(house.x, distanceY);
+  ctx.stroke();
+  
+  // Distance arrows
+  ctx.beginPath();
+  ctx.moveTo(ladder.baseX + 5, distanceY - 5);
+  ctx.lineTo(ladder.baseX, distanceY);
+  ctx.lineTo(ladder.baseX + 5, distanceY + 5);
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(house.x - 5, distanceY - 5);
+  ctx.lineTo(house.x, distanceY);
+  ctx.lineTo(house.x - 5, distanceY + 5);
+  ctx.stroke();
+  
+  // Distance label
+  ctx.textAlign = 'center';
+  ctx.fillText(`${distance.toFixed(1)} ft`, (ladder.baseX + house.x) / 2, distanceY + 20);
+  
+  // Ladder length measurement
+  const midX = (ladder.baseX + ladder.topX) / 2;
+  const midY = (ladder.baseY + ladder.topY) / 2;
+  const angle = Math.atan2(ladder.topY - ladder.baseY, ladder.topX - ladder.baseX);
+  
+  ctx.save();
+  ctx.translate(midX, midY);
+  ctx.rotate(angle);
+  ctx.fillStyle = '#FF6B35';
+  ctx.font = 'bold 16px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${ladder.length.toFixed(1)} ft`, 0, -15);
+  ctx.restore();
+}
+
+function drawSafetyIndicators() {
+  // Draw angle arc
+  const arcRadius = 50;
+  const startAngle = 0;
+  const endAngle = ladder.angle * (Math.PI / 180);
+  
+  ctx.strokeStyle = '#FF6B35';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(ladder.baseX, ladder.baseY, arcRadius, -endAngle, 0);
+  ctx.stroke();
+  
+  // Angle label
+  ctx.fillStyle = '#FF6B35';
+  ctx.font = 'bold 14px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${Math.round(ladder.angle)}°`, 
+    ladder.baseX + Math.cos(-endAngle/2) * (arcRadius + 20),
+    ladder.baseY + Math.sin(-endAngle/2) * (arcRadius + 20));
+  
+  // Safety zone indicator
+  if (ladder.angle >= 70 && ladder.angle <= 80) {
+    ctx.strokeStyle = 'rgba(34, 139, 34, 0.3)';
+    ctx.lineWidth = 20;
+    ctx.beginPath();
+    ctx.arc(ladder.baseX, ladder.baseY, arcRadius + 10, -80 * Math.PI/180, -70 * Math.PI/180);
+    ctx.stroke();
+  }
+}
+
+// Setup canvas size
+function resizeCanvas() {
+  const container = canvas.parentElement;
+  canvas.width = container.clientWidth;
+  canvas.height = container.clientHeight;
+  
+  // Set positions based on canvas size
+  ground.y = canvas.height - 100;
+  house.x = canvas.width - 200;
+  house.y = ground.y;
+  
+  calculateLadder();
+  drawScene();
+}
+
+// Event listeners
+wallHeightSlider.addEventListener('input', () => {
+  calculateLadder();
+  drawScene();
+});
+
+distanceSlider.addEventListener('input', () => {
+  calculateLadder();
+  drawScene();
+});
+
+// Mouse interaction for dragging ladder base
+canvas.addEventListener('mousedown', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  
+  // Check if clicking near ladder base
+  const distance = Math.hypot(mouseX - ladder.baseX, mouseY - ladder.baseY);
+  if (distance < 30) {
+    isDragging = true;
+    dragOffset.x = mouseX - ladder.baseX;
+    dragOffset.y = mouseY - ladder.baseY;
+    canvas.style.cursor = 'grabbing';
+  }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  
+  if (isDragging) {
+    // Calculate new distance based on mouse position
+    const newBaseX = mouseX - dragOffset.x;
+    const newDistance = Math.abs(house.x - newBaseX) / 30; // Scale back
+    
+    // Constrain to slider limits
+    const constrainedDistance = Math.max(1, Math.min(8, newDistance));
+    distanceSlider.value = constrainedDistance;
+    
+    calculateLadder();
+    drawScene();
+  } else {
+    // Check if hovering over ladder base
+    const distance = Math.hypot(mouseX - ladder.baseX, mouseY - ladder.baseY);
+    canvas.style.cursor = distance < 30 ? 'grab' : 'default';
+  }
+});
+
+canvas.addEventListener('mouseup', () => {
+  isDragging = false;
+  canvas.style.cursor = 'default';
+});
+
+// Initialize
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// Update info overlay based on interaction
+setInterval(() => {
+  const tips = [
+    "Try the 4:1 rule: 4 feet high = 1 foot from wall!",
+    "Drag the ladder base to see how safety changes!",
+    "The safest angle is between 70-80 degrees!",
+    "Watch how the Pythagorean theorem calculates ladder length!",
+    "Red ladder = dangerous, green ladder = safe!"
+  ];
+  
+  const randomTip = tips[Math.floor(Math.random() * tips.length)];
+  document.getElementById('info-overlay').textContent = randomTip;
+}, 5000);
+
+// External control via postMessage API for AI voice assistant integration
+window.addEventListener('message', function(event) {
+  // Security: In production, check event.origin
+  if (event.data && typeof event.data === 'object') {
+    const message = event.data;
+    
+    switch(message.type) {
+      case 'setWallHeight':
+        if (message.value >= 5 && message.value <= 25) {
+          wallHeightSlider.value = message.value;
+          calculateLadder();
+          drawScene();
+          sendStatusUpdate();
+        }
+        break;
+        
+      case 'setDistance':
+        if (message.value >= 1 && message.value <= 8) {
+          distanceSlider.value = message.value;
+          calculateLadder();
+          drawScene();
+          sendStatusUpdate();
+        }
+        break;
+        
+      case 'highlightMath':
+        highlightMathSection(message.focus || 'all');
+        break;
+        
+      case 'getStatus':
+        sendStatusUpdate();
+        break;
+        
+      default:
+        console.log('Unknown message type:', message.type);
+    }
+  }
+});
+
+// Send current status to parent window
+function sendStatusUpdate() {
+  const status = {
+    type: 'ladderStatus',
+    wallHeight: parseFloat(wallHeightSlider.value),
+    distance: parseFloat(distanceSlider.value),
+    ladderLength: ladder.length,
+    angle: ladder.angle,
+    safetyStatus: getSafetyStatus(),
+    pythagoreanCalculation: {
+      a: parseFloat(distanceSlider.value),
+      b: parseFloat(wallHeightSlider.value),
+      c: ladder.length,
+      formula: `${distanceSlider.value}² + ${wallHeightSlider.value}² = ${ladder.length.toFixed(1)}²`
+    }
+  };
+  
+  // Send to parent window (AI voice assistant)
+  if (window.parent !== window) {
+    window.parent.postMessage(status, '*');
+  }
+}
+
+// Get current safety status
+function getSafetyStatus() {
+  if (ladder.angle >= 70 && ladder.angle <= 80) {
+    return 'SAFE - Perfect ladder angle!';
+  } else if (ladder.angle >= 65 && ladder.angle <= 85) {
+    return 'CAUTION - Acceptable but not ideal';
+  } else {
+    return 'UNSAFE - Dangerous ladder angle!';
+  }
+}
+
+// Highlight math section based on focus
+function highlightMathSection(focus) {
+  const mathSection = document.querySelector('.math-section');
+  const safetyIndicator = document.querySelector('.safety-indicator');
+  
+  // Remove any existing highlights
+  document.querySelectorAll('.highlight-flash').forEach(el => {
+    el.classList.remove('highlight-flash');
+  });
+  
+  // Add temporary highlight animation
+  const style = document.createElement('style');
+  style.textContent = `
+    .highlight-flash {
+      animation: flashHighlight 2s ease-in-out;
+      border: 3px solid #FFD700 !important;
+    }
+    @keyframes flashHighlight {
+      0%, 100% { background-color: inherit; }
+      50% { background-color: rgba(255, 215, 0, 0.3); }
+    }
+  `;
+  document.head.appendChild(style);
+  
+  switch(focus) {
+    case 'theorem':
+    case 'calculation':
+      if (mathSection) {
+        mathSection.classList.add('highlight-flash');
+        setTimeout(() => mathSection.classList.remove('highlight-flash'), 2000);
+      }
+      break;
+      
+    case 'safety':
+      if (safetyIndicator) {
+        safetyIndicator.classList.add('highlight-flash');
+        setTimeout(() => safetyIndicator.classList.remove('highlight-flash'), 2000);
+      }
+      break;
+      
+    case 'all':
+      [mathSection, safetyIndicator].forEach(el => {
+        if (el) {
+          el.classList.add('highlight-flash');
+          setTimeout(() => el.classList.remove('highlight-flash'), 2000);
+        }
+      });
+      break;
+  }
+  
+  // Update info overlay with explanation
+  const infoOverlay = document.getElementById('info-overlay');
+  if (infoOverlay) {
+    const explanations = {
+      'theorem': 'Pythagorean Theorem: a² + b² = c² - The foundation of right triangle calculations!',
+      'calculation': `Current calculation: ${distanceSlider.value}² + ${wallHeightSlider.value}² = ${ladder.length.toFixed(1)}²`,
+      'safety': `Safety check: ${getSafetyStatus()} (Current angle: ${Math.round(ladder.angle)}°)`,
+      'all': 'Math + Safety = Smart ladder use! The theorem helps us stay safe!'
+    };
+    infoOverlay.textContent = explanations[focus] || explanations['all'];
+  }
+}
+</script>
+
+<script>
+  // Small helper to wire the topbar buttons to existing controls or parent functions
+  (function(){
+    const play = document.getElementById('playPauseBtn');
+    const close = document.getElementById('closeBtn');
+    if (play) {
+      play.addEventListener('click', () => {
+        const btn = document.querySelector('#btn-animate, #btn-start, #btn-fire, .btn-start');
+        if (btn) btn.click(); else window.isRunning = !window.isRunning;
+      });
+    }
+    if (close) {
+      close.addEventListener('click', () => {
+        try {
+          if (window.parent && window.parent !== window) {
+            if (window.parent.executeFunction) { window.parent.executeFunction('close_ladder_animation', {}); return; }
+            if (window.parent.clearAnimation) { window.parent.clearAnimation(); return; }
+          }
+        } catch(e) { console.warn('close action failed', e); }
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>

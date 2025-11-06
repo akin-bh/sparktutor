@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Function Calling Debug</title>
+        <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 20px auto; padding: 20px; }
+        button { padding: 15px 30px; font-size: 16px; margin: 10px; }
+        .log { background: #000; color: #0f0; padding: 15px; border-radius: 5px; font-family: monospace; max-height: 400px; overflow-y: auto; white-space: pre-wrap; }
+        .status { margin: 20px 0; padding: 15px; background: #f0f0f0; border-radius: 5px; }
+        .animation { width: 100px; height: 100px; background: linear-gradient(45deg, #ff6b6b, #4ecdc4); border-radius: 50%; animation: rotate 3s linear infinite; margin: 20px auto; }
+        @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Function Calling Debug</h1>
+    <button onclick="init()">Start Session</button>
+    <button onclick="testFunctionCall()">Test Function Call</button>
+    <button onclick="stopSession()">Stop</button>
+    
+    <div class="status" id="status">Ready to debug</div>
+    
+    <div id="animationContainer" class="hidden">
+        <h3>Debug Animation</h3>
+        <div class="animation"></div>
+    </div>
+    
+    <div class="log" id="log"></div>
+
+    <script>
+        let pc, dc;
+        
+        function log(msg) {
+            const logEl = document.getElementById('log');
+            logEl.textContent += new Date().toISOString() + ': ' + msg + '\n';
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+        
+        function updateStatus(msg) {
+            document.getElementById('status').textContent = msg;
+            log('STATUS: ' + msg);
+        }
+        
+        async function init() {
+            try {
+                updateStatus('Getting token...');
+                
+                const response = await fetch('/session');
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                const token = data.client_secret.value;
+                updateStatus('Got token, starting WebRTC...');
+                
+                pc = new RTCPeerConnection();
+                
+                const audio = document.createElement('audio');
+                audio.autoplay = true;
+                pc.ontrack = e => audio.srcObject = e.streams[0];
+                
+                const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+                stream.getTracks().forEach(track => pc.addTrack(track, stream));
+                
+                dc = pc.createDataChannel('oai-events');
+                dc.onmessage = handleEvent;
+                dc.onopen = () => {
+                    updateStatus('Data channel open, configuring functions...');
+                    configureFunctions();
+                };
+                
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                
+                const sdpResponse = await fetch('https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2025-06-03', {
+                    method: 'POST',
+                    body: offer.sdp,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/sdp'
+                    }
+                });
+                
+                const answer = {type: 'answer', sdp: await sdpResponse.text()};
+                await pc.setRemoteDescription(answer);
+                
+                updateStatus('Connected! Try "show animation" or "close animation"');
+                
+            } catch (error) {
+                updateStatus('Error: ' + error.message);
+                log('ERROR: ' + error.stack);
+            }
+        }
+        
+        function configureFunctions() {
+            const config = {
+                type: "session.update",
+                session: {
+                    tools: [
+                        {
+                            type: "function",
+                            name: "show_animation",
+                            description: "Show the test animation when user wants to see or show an animation",
+                            parameters: {
+                                type: "object",
+                                properties: {},
+                                required: []
+                            }
+                        },
+                        {
+                            type: "function",
+                            name: "close_animation", 
+                            description: "Hide the test animation when user wants to close or hide an animation",
+                            parameters: {
+                                type: "object",
+                                properties: {},
+                                required: []
+                            }
+                        }
+                    ],
+                    tool_choice: "auto",
+                    instructions: "You can control animations on this page. When users ask to show or display an animation, call show_animation. When they ask to close or hide it, call close_animation."
+                }
+            };
+            
+            log('SENDING CONFIG: ' + JSON.stringify(config, null, 2));
+            dc.send(JSON.stringify(config));
+        }
+        
+        function handleEvent(event) {
+            const data = JSON.parse(event.data);
+            log('RECEIVED: ' + JSON.stringify(data, null, 2));
+            
+            if (data.type === 'response.done' && data.response && data.response.output) {
+                for (const output of data.response.output) {
+                    if (output.type === 'function_call') {
+                        log('FUNCTION CALL DETECTED: ' + output.name);
+                        executeFunction(output.name, output.arguments, output.call_id);
+                    }
+                }
+            }
+        }
+        
+        function executeFunction(name, args, callId) {
+            log('EXECUTING: ' + name + ' with args: ' + args);
+            
+            let result;
+            if (name === 'show_animation') {
+                document.getElementById('animationContainer').classList.remove('hidden');
+                result = {success: true, message: "Animation shown"};
+            } else if (name === 'close_animation') {
+                document.getElementById('animationContainer').classList.add('hidden');
+                result = {success: true, message: "Animation hidden"};
+            } else {
+                result = {success: false, message: "Unknown function"};
+            }
+            
+            // Send result back
+            const functionResult = {
+                type: "conversation.item.create",
+                item: {
+                    type: "function_call_output",
+                    call_id: callId,
+                    output: JSON.stringify(result)
+                }
+            };
+            
+            log('SENDING RESULT: ' + JSON.stringify(functionResult, null, 2));
+            dc.send(JSON.stringify(functionResult));
+            
+            // Request new response
+            dc.send(JSON.stringify({type: "response.create"}));
+        }
+        
+        function testFunctionCall() {
+            // Manually test function execution
+            log('TESTING: Manual function call');
+            executeFunction('show_animation', '{}', 'test_call_123');
+        }
+        
+        function stopSession() {
+            if (pc) pc.close();
+            if (dc) dc.close();
+            updateStatus('Stopped');
+        }
+    </script>
+</body>
+</html>

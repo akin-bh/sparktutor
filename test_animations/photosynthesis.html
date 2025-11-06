@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🌱 Photosynthesis - How Plants Make Food!</title>
+    <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* Simple, clean design for kids */
+    * { 
+      box-sizing: border-box; 
+      margin: 0;
+      padding: 0;
+    }
+    
+    body { 
+      font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', Arial, sans-serif;
+      background: linear-gradient(to bottom, #87CEEB, #98FB98);
+      color: #333;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .container {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      height: 100vh;
+      gap: 15px;
+      padding: 15px;
+    }
+    
+    /* Left Panel - Controls */
+    .controls {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+    
+    h1 {
+      font-size: 24px;
+      color: #4CAF50;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .control-group {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f5f5f5;
+      border-radius: 10px;
+    }
+    
+    .control-group h3 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .slider-container {
+      margin: 10px 0;
+    }
+    
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #ddd;
+      outline: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #4CAF50;
+      cursor: pointer;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn-start {
+      background: #4CAF50;
+      color: white;
+    }
+    
+    .btn-pause {
+      background: #FF9800;
+      color: white;
+    }
+    
+    .btn-reset {
+      background: #f44336;
+      color: white;
+    }
+    
+    .info-box {
+      background: #E8F5E9;
+      border-left: 4px solid #4CAF50;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    
+    .info-box h4 {
+      color: #2E7D32;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .info-box p {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #555;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .stat-card {
+      background: white;
+      border: 2px solid #4CAF50;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+    
+    .stat-card .label {
+      font-size: 12px;
+      color: #666;
+    }
+    
+    .stat-card .value {
+      font-size: 20px;
+      font-weight: bold;
+      color: #4CAF50;
+    }
+    
+    /* Right Panel - Animation */
+    .animation-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    
+    .equation-overlay {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.95);
+      padding: 15px 25px;
+      border-radius: 15px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+    }
+    
+    .legend {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.95);
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 5px 0;
+    }
+    
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .process-indicator {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(76, 175, 80, 0.95);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      display: none;
+    }
+    /* small consistent topbar for animations */
+    .anim-topbar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.92);
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      z-index: 30;
+      font-weight: 700;
+    }
+    .anim-topbar .anim-title { color: #2E7D32; font-size: 14px; }
+    .anim-topbar .anim-controls { display:flex; gap:8px; align-items:center; }
+    .anim-topbar .mini-btn { background:#f3f4f6; border:none; padding:8px 10px; border-radius:8px; cursor:pointer; }
+    
+    .process-indicator.active {
+      display: block;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 0.9; }
+      50% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Left Control Panel -->
+  <div class="controls">
+    <h1>🌱 Photosynthesis Lab</h1>
+    
+    <div class="button-group">
+      <button class="btn-start" id="btn-start" onclick="startAnimation()">▶️ Start</button>
+      <button class="btn-pause" id="btn-pause" onclick="pauseAnimation()">⏸️ Pause</button>
+      <button class="btn-reset" id="btn-reset" onclick="resetAnimation()">🔄 Reset</button>
+    </div>
+    
+    <div class="control-group">
+      <h3>☀️ Environmental Controls</h3>
+      
+      <div class="slider-container">
+        <div class="slider-label">
+          <span>☀️ Sunlight</span>
+          <span id="light-value">70%</span>
+        </div>
+        <input type="range" id="light-slider" min="0" max="100" value="70">
+      </div>
+      
+      <div class="slider-container">
+        <div class="slider-label">
+          <span>💨 CO₂ Level</span>
+          <span id="co2-value">Normal</span>
+        </div>
+        <input type="range" id="co2-slider" min="0" max="100" value="50">
+      </div>
+      
+      <div class="slider-container">
+        <div class="slider-label">
+          <span>💧 Water</span>
+          <span id="water-value">Good</span>
+        </div>
+        <input type="range" id="water-slider" min="0" max="100" value="70">
+      </div>
+    </div>
+    
+    <div class="info-box">
+      <h4>📚 What's Happening?</h4>
+      <p id="process-explanation">
+        When sunlight hits the leaf, chloroplasts inside use CO₂ and water to make glucose (food) and release oxygen!
+      </p>
+    </div>
+    
+    <div class="stats">
+      <div class="stat-card">
+        <div class="label">🫧 Oxygen Released</div>
+        <div class="value" id="oxygen-count">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">🍯 Sugar Made</div>
+        <div class="value" id="glucose-count">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">⚡ Speed</div>
+        <div class="value" id="speed-value">0%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">🌱 Health</div>
+        <div class="value" id="plant-health">Good</div>
+      </div>
+    </div>
+    
+    <div class="info-box" style="margin-top: 20px;">
+      <h4>🔬 Fun Fact!</h4>
+      <p id="fun-fact">
+        Photosynthesis happens inside tiny green structures called chloroplasts in the leaf!
+      </p>
+    </div>
+  </div>
+  
+  <!-- Right Animation Panel -->
+  <div class="animation-container">
+    <div class="anim-topbar" role="toolbar" aria-label="Animation controls">
+      <div class="anim-title">🌱 Photosynthesis</div>
+      <div class="anim-controls">
+        <button class="mini-btn" id="playPauseBtn">⏯️</button>
+        <button class="mini-btn" id="closeBtn">✖</button>
+      </div>
+    </div>
+    <canvas id="canvas"></canvas>
+    
+    <div class="process-indicator" id="process-indicator">
+      ⚡ Photosynthesis in action!
+    </div>
+    
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #FFD700;"></div>
+        <span>Sunlight</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #666;"></div>
+        <span>CO₂ (Carbon Dioxide)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #2196F3;"></div>
+        <span>H₂O (Water)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #00BCD4;"></div>
+        <span>O₂ (Oxygen)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #FF9800;"></div>
+        <span>Glucose (Sugar)</span>
+      </div>
+    </div>
+    
+    <div class="equation-overlay">
+      6CO₂ + 6H₂O + ☀️ → C₆H₁₂O₆ + 6O₂
+    </div>
+  </div>
+</div>
+
+<script>
+// Simple, clear code for educational purposes
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// Animation state
+let isRunning = false;
+let animationFrame = null;
+let particles = [];
+let sunbeams = [];
+let reactions = [];
+let oxygenCount = 0;
+let glucoseCount = 0;
+let lastReactionTime = 0;
+
+// Get control elements
+const lightSlider = document.getElementById('light-slider');
+const co2Slider = document.getElementById('co2-slider');
+const waterSlider = document.getElementById('water-slider');
+const processIndicator = document.getElementById('process-indicator');
+
+// Plant properties (FIXED - doesn't change size)
+const plant = {
+  x: 0,  // Will be set based on canvas size
+  y: 0,
+  stemWidth: 20,
+  stemHeight: 150,
+  leafSize: 120,  // FIXED leaf size
+  color: '#4CAF50'
+};
+
+// Sunbeam class - rays from sun to leaf
+class Sunbeam {
+  constructor() {
+    this.startX = 100 + Math.random() * 50;
+    this.startY = 100 + Math.random() * 50;
+    this.targetX = plant.x + (Math.random() - 0.5) * plant.leafSize;
+    this.targetY = plant.y + (Math.random() - 0.5) * plant.leafSize/2;
+    this.progress = 0;
+    this.speed = 0.05;  // Faster sunbeam travel
+  }
+  
+  update() {
+    this.progress += this.speed;
+    
+    // When sunbeam reaches leaf, trigger reaction
+    if (this.progress >= 1) {
+      // Check if we have CO2 and water available
+      const co2Available = particles.filter(p => p.type === 'co2' && p.inLeaf).length > 0;
+      const waterAvailable = particles.filter(p => p.type === 'water' && p.inLeaf).length > 0;
+      
+      if (co2Available && waterAvailable) {
+        triggerPhotosynthesis(this.targetX, this.targetY);
+      }
+      return false;
+    }
+    return true;
+  }
+  
+  draw() {
+    const x = this.startX + (this.targetX - this.startX) * this.progress;
+    const y = this.startY + (this.targetY - this.startY) * this.progress;
+    
+    // Draw sunbeam
+    ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(this.startX, this.startY);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    
+    // Draw light particle at end
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+// Simple Particle class for molecules
+class Particle {
+  constructor(type, x, y) {
+    this.type = type;
+    this.x = x;
+    this.y = y;
+    this.vx = (Math.random() - 0.5) * 2;
+    this.vy = (Math.random() - 0.5) * 2;
+    this.size = 8;
+    this.inLeaf = false;
+    this.used = false;
+    
+    // Set properties based on type
+    switch(type) {
+      case 'co2':
+        this.color = '#666';
+        this.label = 'CO₂';
+        break;
+      case 'water':
+        this.color = '#2196F3';
+        this.label = 'H₂O';
+        this.vy = -Math.abs(this.vy); // Water rises from roots
+        break;
+      case 'oxygen':
+        this.color = '#00BCD4';
+        this.label = 'O₂';
+        this.vy = -Math.abs(this.vy) * 1.5; // Oxygen floats up faster
+        this.vx *= 2; // Spreads out more
+        break;
+      case 'glucose':
+        this.color = '#FF9800';
+        this.label = 'Glucose';
+        this.vy = Math.abs(this.vy); // Glucose sinks to roots
+        break;
+    }
+  }
+  
+  update() {
+    if (this.used) return false;
+    
+    // Check if particle is in leaf
+    const distToPlant = Math.hypot(this.x - plant.x, this.y - plant.y);
+    this.inLeaf = distToPlant < plant.leafSize;
+    
+    // Different behavior for inputs vs outputs
+    if (this.type === 'co2' || this.type === 'water') {
+      // Input molecules move toward the leaf
+      if (!this.inLeaf) {
+        // Move toward leaf center
+        const dx = plant.x - this.x;
+        const dy = plant.y - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        this.vx += (dx / dist) * 0.2;  // Faster movement toward leaf
+        this.vy += (dy / dist) * 0.2;
+        
+        // Limit speed
+        this.vx *= 0.92;
+        this.vy *= 0.92;
+      } else {
+        // Slow down inside leaf but not too much
+        this.vx *= 0.95;
+        this.vy *= 0.95;
+      }
+    }
+    
+    // Update position
+    this.x += this.vx;
+    this.y += this.vy;
+    
+    // Keep in bounds
+    if (this.x < 0 || this.x > canvas.width) this.vx *= -0.8;
+    if (this.y < 0 || this.y > canvas.height) this.vy *= -0.8;
+    
+    this.x = Math.max(10, Math.min(canvas.width - 10, this.x));
+    this.y = Math.max(10, Math.min(canvas.height - 10, this.y));
+    
+    // Remove particles that float away
+    if (this.type === 'oxygen' && this.y < -50) return false;
+    if (this.type === 'glucose' && this.y > canvas.height + 50) return false;
+    
+    return true;
+  }
+  
+  draw() {
+    if (this.used) return;
+    
+    // Make particles glow when in leaf
+    if (this.inLeaf && (this.type === 'co2' || this.type === 'water')) {
+      ctx.shadowColor = this.color;
+      ctx.shadowBlur = 10;
+    }
+    
+    // Draw particle
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.shadowBlur = 0;
+    
+    // Draw label
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 10px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(this.label, this.x, this.y - 12);
+  }
+}
+
+// Reaction animation class
+class Reaction {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.radius = 0;
+    this.maxRadius = 30;
+    this.opacity = 1;
+  }
+  
+  update() {
+    this.radius += 2;
+    this.opacity = 1 - (this.radius / this.maxRadius);
+    return this.radius < this.maxRadius;
+  }
+  
+  draw() {
+    ctx.strokeStyle = `rgba(76, 175, 80, ${this.opacity})`;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+}
+
+// Trigger photosynthesis reaction in the leaf
+function triggerPhotosynthesis(x, y) {
+  // Find and consume CO2 and water molecules in the leaf
+  let co2Used = 0;
+  let waterUsed = 0;
+  
+  particles.forEach(p => {
+    if (p.inLeaf && !p.used) {
+      if (p.type === 'co2' && co2Used < 6) {  // Need 6 CO2 for equation
+        p.used = true;
+        co2Used++;
+      } else if (p.type === 'water' && waterUsed < 6) {  // Need 6 H2O for equation
+        p.used = true;
+        waterUsed++;
+      }
+    }
+  });
+  
+  // Photosynthesis equation: 6CO2 + 6H2O + light → C6H12O6 + 6O2
+  // But for animation, we'll be more flexible with ratios
+  if (co2Used > 0 && waterUsed > 0) {
+    // Visual reaction effect
+    reactions.push(new Reaction(x, y));
+    
+    // Show process indicator
+    processIndicator.classList.add('active');
+    setTimeout(() => processIndicator.classList.remove('active'), 800);
+    
+    // Create oxygen molecules (6 O2 per reaction, but we'll create based on inputs)
+    const oxygenToCreate = Math.min(co2Used, waterUsed);
+    for (let i = 0; i < oxygenToCreate; i++) {
+      setTimeout(() => {
+        const ox = new Particle('oxygen', x + (Math.random() - 0.5) * 40, y + (Math.random() - 0.5) * 20);
+        particles.push(ox);
+        oxygenCount++;
+      }, i * 100);
+    }
+    
+    // Create glucose (1 glucose per 6 CO2 and 6 H2O, but simplified for animation)
+    if (co2Used >= 2 && waterUsed >= 2) {  // Simplified ratio
+      setTimeout(() => {
+        const glucose = new Particle('glucose', plant.x + (Math.random() - 0.5) * 30, plant.y + 30);
+        particles.push(glucose);
+        glucoseCount++;
+      }, 200);
+    }
+    
+    // Remove used particles
+    particles = particles.filter(p => !p.used);
+    
+    updateStats();
+  }
+}
+
+// Calculate how fast photosynthesis happens
+function calculateEfficiency() {
+  const light = parseInt(lightSlider.value) / 100;
+  const co2 = parseInt(co2Slider.value) / 100;
+  const water = parseInt(waterSlider.value) / 100;
+  
+  // All three are needed for photosynthesis
+  return Math.min(light, co2, water);
+}
+
+// Update display stats
+function updateStats() {
+  document.getElementById('oxygen-count').textContent = oxygenCount;
+  document.getElementById('glucose-count').textContent = glucoseCount;
+  
+  const efficiency = calculateEfficiency();
+  document.getElementById('speed-value').textContent = Math.round(efficiency * 100) + '%';
+  
+  // Update plant health based on conditions
+  let health = 'Good';
+  if (efficiency < 0.3) health = 'Poor';
+  else if (efficiency < 0.6) health = 'Fair';
+  document.getElementById('plant-health').textContent = health;
+  
+  // Update explanation based on conditions
+  updateExplanation();
+}
+
+// Update the explanation text
+function updateExplanation() {
+  const light = parseInt(lightSlider.value);
+  const co2 = parseInt(co2Slider.value);
+  const water = parseInt(waterSlider.value);
+  
+  let explanation = '';
+  
+  if (light < 30) {
+    explanation = "⚠️ Not enough sunlight! The leaf needs light energy to power photosynthesis.";
+  } else if (water < 30) {
+    explanation = "💧 The plant needs more water! Water molecules are split to release oxygen.";
+  } else if (co2 < 30) {
+    explanation = "💨 Low CO₂! The leaf needs carbon dioxide from the air to make glucose.";
+  } else if (light > 70 && water > 70 && co2 > 70) {
+    explanation = "✨ Perfect! Equation: 6CO₂ + 6H₂O + light → C₆H₁₂O₆ + 6O₂ happening fast!";
+  } else {
+    explanation = "🌱 Photosynthesis equation in action! Watch molecules combine in the leaf!";
+  }
+  
+  document.getElementById('process-explanation').textContent = explanation;
+}
+
+// Draw the plant with visible chloroplasts in leaf
+function drawPlant() {
+  // Roots (draw first so they're behind)
+  ctx.strokeStyle = '#8B4513';
+  ctx.lineWidth = 3;
+  for (let i = 0; i < 5; i++) {
+    ctx.beginPath();
+    ctx.moveTo(plant.x, plant.y + plant.stemHeight);
+    ctx.lineTo(plant.x + (i - 2) * 20, plant.y + plant.stemHeight + 50);
+    ctx.stroke();
+  }
+  
+  // Stem
+  ctx.fillStyle = '#8B4513';
+  ctx.fillRect(plant.x - plant.stemWidth/2, plant.y, plant.stemWidth, plant.stemHeight);
+  
+  // Main leaf with gradient
+  const leafGradient = ctx.createRadialGradient(plant.x, plant.y, 0, plant.x, plant.y, plant.leafSize);
+  leafGradient.addColorStop(0, '#66BB6A');
+  leafGradient.addColorStop(0.7, '#4CAF50');
+  leafGradient.addColorStop(1, '#388E3C');
+  
+  ctx.fillStyle = leafGradient;
+  ctx.beginPath();
+  ctx.ellipse(plant.x, plant.y, plant.leafSize, plant.leafSize * 0.7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Draw chloroplasts (tiny green dots) inside leaf
+  ctx.fillStyle = 'rgba(46, 125, 50, 0.6)';
+  for (let i = 0; i < 20; i++) {
+    const angle = (i / 20) * Math.PI * 2;
+    const radius = Math.random() * (plant.leafSize - 20) * 0.7;
+    const x = plant.x + Math.cos(angle) * radius;
+    const y = plant.y + Math.sin(angle) * radius * 0.7;
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  
+  // Leaf veins
+  ctx.strokeStyle = '#2E7D32';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(plant.x, plant.y - plant.leafSize * 0.6);
+  ctx.lineTo(plant.x, plant.y + plant.leafSize * 0.6);
+  ctx.stroke();
+  
+  // Side veins
+  for (let i = -2; i <= 2; i++) {
+    if (i === 0) continue;
+    ctx.beginPath();
+    ctx.moveTo(plant.x, plant.y);
+    ctx.lineTo(plant.x + i * 30, plant.y + Math.abs(i) * 20);
+    ctx.stroke();
+  }
+  
+  // Side leaves
+  ctx.fillStyle = '#4CAF50';
+  ctx.beginPath();
+  ctx.ellipse(plant.x - 70, plant.y - 20, plant.leafSize * 0.5, plant.leafSize * 0.35, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.beginPath();
+  ctx.ellipse(plant.x + 70, plant.y - 20, plant.leafSize * 0.5, plant.leafSize * 0.35, 0.3, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// Draw the sun
+function drawSun() {
+  const sunX = 100;
+  const sunY = 100;
+  const sunRadius = 40;
+  const lightIntensity = parseInt(lightSlider.value) / 100;
+  
+  // Sun glow based on intensity
+  const glowGradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunRadius * 2);
+  glowGradient.addColorStop(0, `rgba(255, 215, 0, ${lightIntensity})`);
+  glowGradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+  ctx.fillStyle = glowGradient;
+  ctx.fillRect(sunX - sunRadius * 2, sunY - sunRadius * 2, sunRadius * 4, sunRadius * 4);
+  
+  // Sun body
+  ctx.fillStyle = `rgba(255, 215, 0, ${0.5 + lightIntensity * 0.5})`;
+  ctx.beginPath();
+  ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Sun face
+  ctx.fillStyle = '#FFA500';
+  ctx.beginPath();
+  ctx.arc(sunX - 10, sunY - 5, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(sunX + 10, sunY - 5, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(sunX, sunY + 10, 15, 0, Math.PI);
+  ctx.stroke();
+}
+
+// Main animation loop
+function animate() {
+  if (!isRunning) return;
+  
+  // Clear canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw background gradient
+  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  gradient.addColorStop(0, '#87CEEB');
+  gradient.addColorStop(0.7, '#98FB98');
+  gradient.addColorStop(1, '#654321');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw sun
+  drawSun();
+  
+  // Draw plant
+  drawPlant();
+  
+  // Create sunbeams when there's light (increased frequency)
+  const lightLevel = parseInt(lightSlider.value);
+  if (lightLevel > 0 && Math.random() < lightLevel / 200) {  // Much more frequent
+    sunbeams.push(new Sunbeam());
+  }
+  
+  // Create new particles based on conditions (increased frequency)
+  const currentTime = Date.now();
+  if (currentTime - lastReactionTime > 200) { // Faster creation rate
+    const co2Level = parseInt(co2Slider.value);
+    const waterLevel = parseInt(waterSlider.value);
+    
+    // Add CO2 from air (comes from top) - more frequent
+    if (co2Level > 0 && Math.random() < co2Level / 300) {
+      particles.push(new Particle('co2', Math.random() * canvas.width, 50));
+    }
+    
+    // Add water from roots (comes from bottom) - more frequent
+    if (waterLevel > 0 && Math.random() < waterLevel / 300) {
+      particles.push(new Particle('water', plant.x + (Math.random() - 0.5) * 100, canvas.height - 50));
+    }
+    
+    lastReactionTime = currentTime;
+  }
+  
+  // Update and draw sunbeams
+  sunbeams = sunbeams.filter(beam => {
+    const alive = beam.update();
+    beam.draw();
+    return alive;
+  });
+  
+  // Update and draw reactions
+  reactions = reactions.filter(reaction => {
+    const alive = reaction.update();
+    reaction.draw();
+    return alive;
+  });
+  
+  // Update and draw particles
+  particles = particles.filter(p => {
+    const alive = p.update();
+    p.draw();
+    return alive;
+  });
+  
+  // Continue animation
+  animationFrame = requestAnimationFrame(animate);
+}
+
+// Control functions
+function startAnimation() {
+  isRunning = true;
+  animate();
+}
+
+function pauseAnimation() {
+  isRunning = false;
+  if (animationFrame) {
+    cancelAnimationFrame(animationFrame);
+  }
+}
+
+function resetAnimation() {
+  pauseAnimation();
+  particles = [];
+  sunbeams = [];
+  reactions = [];
+  oxygenCount = 0;
+  glucoseCount = 0;
+  updateStats();
+}
+
+// Setup canvas size
+function resizeCanvas() {
+  const container = canvas.parentElement;
+  canvas.width = container.clientWidth;
+  canvas.height = container.clientHeight;
+  
+  // Update plant position (center of canvas)
+  plant.x = canvas.width / 2;
+  plant.y = canvas.height / 2 - 50;
+}
+
+// Update displays when sliders change
+lightSlider.addEventListener('input', (e) => {
+  document.getElementById('light-value').textContent = e.target.value + '%';
+  updateStats();
+});
+
+co2Slider.addEventListener('input', (e) => {
+  const level = parseInt(e.target.value);
+  let text = 'Low';
+  if (level > 66) text = 'High';
+  else if (level > 33) text = 'Normal';
+  document.getElementById('co2-value').textContent = text;
+  updateStats();
+});
+
+waterSlider.addEventListener('input', (e) => {
+  const level = parseInt(e.target.value);
+  let text = 'Dry';
+  if (level > 66) text = 'Good';
+  else if (level > 33) text = 'OK';
+  document.getElementById('water-value').textContent = text;
+  updateStats();
+});
+
+// Initialize
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+updateStats();
+
+// Fun facts that rotate
+const funFacts = [
+  "Photosynthesis happens inside tiny green structures called chloroplasts in the leaf!",
+  "The oxygen you breathe comes from water molecules split during photosynthesis!",
+  "Plants use the glucose they make as food to grow and stay alive!",
+  "Chlorophyll is the green pigment that captures sunlight in the leaf!",
+  "One large tree can produce enough oxygen for 2 people for a whole year!",
+  "Photosynthesis only happens when sunlight hits the leaf - not at night!",
+  "The leaf is like a solar panel - it captures light energy to make food!"
+];
+
+let factIndex = 0;
+setInterval(() => {
+  factIndex = (factIndex + 1) % funFacts.length;
+  document.getElementById('fun-fact').textContent = funFacts[factIndex];
+}, 10000);
+
+// External control via postMessage API for AI voice assistant integration
+window.addEventListener('message', function(event) {
+  // Security: In production, check event.origin
+  console.log('🌱 Photosynthesis received message:', event.data);
+  
+  if (event.data && typeof event.data === 'object') {
+    const message = event.data;
+    console.log('🌱 Processing message type:', message.type);
+    
+    switch(message.type) {
+      case 'setSunlight':
+        const sunlightMap = { 'low': 20, 'medium': 60, 'high': 100 };
+        if (sunlightMap[message.value] !== undefined) {
+            console.log('🌱 Setting sunlight to:', sunlightMap[message.value]);
+          document.getElementById('light-slider').value = sunlightMap[message.value];
+          updateStats();
+          sendStatusUpdate();
+        }
+        break;
+        
+      case 'setCO2':
+        const co2Map = { 'low': 200, 'normal': 400, 'high': 800 };
+        if (co2Map[message.value] !== undefined) {
+          document.getElementById('co2-slider').value = co2Map[message.value];
+          updateStats();
+          sendStatusUpdate();
+        }
+        break;
+        
+      case 'setWater':
+        const waterMap = { 'low': 20, 'normal': 60, 'high': 100 };
+        if (waterMap[message.value] !== undefined) {
+          document.getElementById('water-slider').value = waterMap[message.value];
+          updateStats();
+          sendStatusUpdate();
+        }
+        break;
+        
+      case 'controlProcess':
+        const button = document.getElementById('btn-start');
+        console.log("Document.getElementById('btn-start'):", document);
+        const stopButton = document.getElementById('btn-stop');
+        console.log('🌱 Control process:', message.value);
+        if (message.value === 'start') {
+          button.click();
+        } else if (message.value === 'pause') {
+          stopButton.click();
+        } else if (message.value === 'reset') {
+          // Reset all values to defaults
+          document.getElementById('sunlight').value = 70;
+          document.getElementById('co2').value = 400;
+          document.getElementById('water').value = 80;
+          updateStats();
+        }
+        sendStatusUpdate();
+        break;
+        
+      case 'explainProcess':
+        highlightPhotosynthesisAspect(message.focus || 'all');
+        break;
+        
+      case 'getStatus':
+        sendStatusUpdate();
+        break;
+        
+      default:
+        console.log('Unknown message type:', message.type);
+    }
+  }
+});
+
+// Send current status to parent window
+function sendStatusUpdate() {
+  const sunlight = parseInt(document.getElementById('sunlight').value);
+  const co2 = parseInt(document.getElementById('co2').value);
+  const water = parseInt(document.getElementById('water').value);
+  
+  const status = {
+    type: 'photosynthesisStatus',
+    sunlight: sunlight,
+    co2: co2,
+    water: water,
+    running: running,
+    oxygenRate: Math.round(oxygenProduced),
+    glucoseRate: Math.round(glucoseProduced),
+    photosynthesisEquation: '6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂',
+    currentConditions: getConditionsDescription()
+  };
+  
+  // Send to parent window (AI voice assistant)
+  if (window.parent !== window) {
+    window.parent.postMessage(status, '*');
+  }
+}
+
+// Get description of current conditions
+function getConditionsDescription() {
+  const sunlight = parseInt(document.getElementById('sunlight').value);
+  const co2 = parseInt(document.getElementById('co2').value);
+  const water = parseInt(document.getElementById('water').value);
+  
+  let conditions = [];
+  if (sunlight > 80) conditions.push('High sunlight');
+  else if (sunlight > 50) conditions.push('Good sunlight');
+  else conditions.push('Low sunlight');
+  
+  if (co2 > 600) conditions.push('High CO₂');
+  else if (co2 > 300) conditions.push('Normal CO₂');
+  else conditions.push('Low CO₂');
+  
+  if (water > 80) conditions.push('Plenty of water');
+  else if (water > 50) conditions.push('Adequate water');
+  else conditions.push('Low water');
+  
+  return conditions.join(', ');
+}
+
+// Highlight different aspects of photosynthesis
+function highlightPhotosynthesisAspect(focus) {
+  // Remove any existing highlights
+  document.querySelectorAll('.highlight-flash').forEach(el => {
+    el.classList.remove('highlight-flash');
+  });
+  
+  // Add temporary highlight animation
+  const style = document.createElement('style');
+  style.textContent = `
+    .highlight-flash {
+      animation: flashHighlight 2s ease-in-out;
+      border: 3px solid #FFD700 !important;
+    }
+    @keyframes flashHighlight {
+      0%, 100% { background-color: inherit; }
+      50% { background-color: rgba(255, 215, 0, 0.3); }
+    }
+  `;
+  document.head.appendChild(style);
+  
+  switch(focus) {
+    case 'equation':
+      const equation = document.querySelector('.equation');
+      if (equation) {
+        equation.classList.add('highlight-flash');
+        setTimeout(() => equation.classList.remove('highlight-flash'), 2000);
+      }
+      break;
+      
+    case 'process':
+      // Highlight the main canvas area
+      const canvas = document.getElementById('photosynthesis-canvas');
+      if (canvas) {
+        canvas.style.border = '3px solid #FFD700';
+        setTimeout(() => canvas.style.border = 'none', 2000);
+      }
+      break;
+      
+    case 'factors':
+      // Highlight the control sliders
+      document.querySelectorAll('.control-group').forEach(group => {
+        group.classList.add('highlight-flash');
+        setTimeout(() => group.classList.remove('highlight-flash'), 2000);
+      });
+      break;
+      
+    case 'products':
+      // Highlight the stats section
+      const stats = document.querySelector('.stats');
+      if (stats) {
+        stats.classList.add('highlight-flash');
+        setTimeout(() => stats.classList.remove('highlight-flash'), 2000);
+      }
+      break;
+      
+    case 'all':
+      // Highlight everything briefly
+      ['.equation', '.stats'].forEach(selector => {
+        const element = document.querySelector(selector);
+        if (element) {
+          element.classList.add('highlight-flash');
+          setTimeout(() => element.classList.remove('highlight-flash'), 2000);
+        }
+      });
+      break;
+  }
+}
+
+</script>
+
+<script>
+  (function(){
+    const play = document.getElementById('playPauseBtn');
+    const close = document.getElementById('closeBtn');
+    if (play) play.addEventListener('click', () => { const btn = document.querySelector('#btn-start, #btn-animate, .btn-start'); if (btn) btn.click(); else window.isRunning = !window.isRunning; });
+    if (close) close.addEventListener('click', () => {
+      try {
+        if (window.parent && window.parent !== window) {
+          if (window.parent.executeFunction) { window.parent.executeFunction('close_photosynthesis_animation', {}); return; }
+          if (window.parent.clearAnimation) { window.parent.clearAnimation(); return; }
+        }
+      } catch(e) { console.warn('close action failed', e); }
+    });
+  })();
+</script>
+
+</body>
+</html>

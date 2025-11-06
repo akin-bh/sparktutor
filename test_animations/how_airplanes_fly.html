@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>How Planes Fly — Interactive</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* Minimal styles kept for layout */
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial, sans-serif;background:linear-gradient(#87CEEB,#E0F6FF);height:100vh}
+    .container{display:grid;grid-template-columns:320px 1fr;height:100vh;gap:20px;padding:20px}
+    .controls{background:#fff;border-radius:12px;padding:16px;overflow:auto}
+    .animation-container{background:linear-gradient(#87CEEB,#E0F6FF);border-radius:12px;position:relative;overflow:hidden}
+    canvas{width:100%;height:100%;display:block}
+    .anim-topbar{position:absolute;top:12px;left:12px;right:12px;height:44px;display:flex;align-items:center;justify-content:space-between;z-index:30}
+    .info-overlay{position:absolute;top:20px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.9);padding:10px 16px;border-radius:12px}
+    .slider-container{margin:12px 0}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="controls">
+      <h2>How Planes Fly</h2>
+
+      <div class="slider-container">
+        <div style="display:flex;justify-content:space-between"><span>💨 Airspeed (V∞)</span><span id="wind-speed-value">30 m/s</span></div>
+        <input id="wind-speed" type="range" min="10" max="100" value="30" step="2" />
+      </div>
+
+      <div class="slider-container">
+        <div style="display:flex;justify-content:space-between"><span>📐 Angle of Attack (α)</span><span id="wing-angle-value">5°</span></div>
+        <input id="wing-angle" type="range" min="-15" max="25" value="5" step="0.5" />
+      </div>
+
+      <div class="slider-container">
+        <div style="display:flex;justify-content:space-between"><span>🌪️ Circulation (Γ)</span><span id="circulation-value">5.2 m²/s</span></div>
+        <input id="circulation" type="range" min="0" max="15" value="5.2" step="0.2" />
+      </div>
+
+      <div class="slider-container">
+        <div style="display:flex;justify-content:space-between"><span>💨 Air Particles</span><span id="particles-value">500</span></div>
+        <input id="particles" type="range" min="100" max="1000" value="500" step="50" />
+      </div>
+
+      <div style="margin-top:12px">
+        <label><input id="show-pressure" type="checkbox" checked /> Show pressure</label><br />
+        <label><input id="show-particles" type="checkbox" checked /> Show particles</label>
+      </div>
+
+    </div>
+
+    <div class="animation-container">
+      <div class="anim-topbar">
+        <div>✈️ How Planes Fly</div>
+        <div><button id="playPauseBtn">⏯️</button> <button id="closeBtn">✖</button></div>
+      </div>
+      <canvas id="canvas"></canvas>
+      <div class="info-overlay" id="info-overlay">Watch how air flows faster over the curved wing top!</div>
+    </div>
+  </div>
+
+  <script>
+  // Cleaned, single script for animation
+  (function(){
+    // DOM refs
+    let canvas, ctx;
+    let windSpeedSlider, wingAngleSlider, circulationSlider, particlesSlider;
+    let showPressureCheckbox, showParticlesCheckbox;
+
+    // Animation state
+    let isRunning = false, animationFrame = null, particles = [], time = 0;
+
+    // Airplane
+    const airplane = { x:0, y:0, wingWidth:200, wingHeight:40, fuselageLength:150, fuselageHeight:20 };
+
+    class AirParticle {
+      constructor(){ this.reset(); this.x = Math.random() * (canvas ? canvas.width : 400); }
+      reset(){ this.x = -20; this.y = Math.random() * (canvas ? canvas.height : 300); this.vx = 3; this.vy=0; this.size = 2+Math.random()*2; this.opacity = 0.6+Math.random()*0.4; this.hue = 200 + Math.random()*60; }
+      update(){
+        const windSpeed = parseFloat(windSpeedSlider.value)/10;
+        const wingAngle = parseFloat(wingAngleSlider.value)*Math.PI/180;
+        const circulation = parseFloat(circulationSlider.value)||0;
+        const dx = this.x - airplane.x; const dy = this.y - airplane.y; const distance = Math.sqrt(dx*dx+dy*dy);
+        this.vx = windSpeed; this.vy = 0;
+        if (distance < 150){ const influence = Math.max(0,1-distance/150);
+          if (Math.abs(dy) < airplane.wingHeight && dx > -airplane.wingWidth/2 && dx < airplane.wingWidth/2){ if (dy<0){ this.vx *= (1 + influence*circulation*0.5); this.vy -= influence*2; this.hue = 0; } else { this.vx *= (1 - influence*0.2); this.vy += influence*1; this.hue = 240; } }
+          else { const angle = Math.atan2(dy,dx); this.vx += Math.cos(angle)*influence*windSpeed*0.3; this.vy += Math.sin(angle)*influence*windSpeed*0.3; }
+        }
+        this.vy += wingAngle * windSpeed * 0.1;
+        this.x += this.vx; this.y += this.vy;
+        if (this.x > canvas.width + 50 || this.y < -50 || this.y > canvas.height + 50) this.reset();
+      }
+      draw(){ if (!showParticlesCheckbox.checked) return; ctx.save(); ctx.globalAlpha = this.opacity; ctx.fillStyle = `hsl(${this.hue},70%,60%)`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+    }
+
+    function initParticles(){ particles = []; const count = parseInt(particlesSlider.value||200); for (let i=0;i<count;i++) particles.push(new AirParticle()); }
+
+    function drawAirplane(){ ctx.save(); ctx.fillStyle='#C0C0C0'; ctx.strokeStyle='#808080'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(airplane.x+50, airplane.y, airplane.fuselageLength/2, airplane.fuselageHeight/2, 0,0,Math.PI*2); ctx.fill(); ctx.stroke(); const wingAngle = parseFloat(wingAngleSlider.value)*Math.PI/180; ctx.save(); ctx.translate(airplane.x, airplane.y); ctx.rotate(wingAngle); ctx.fillStyle='#FFD700'; ctx.strokeStyle='#FFA500'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(-airplane.wingWidth/2,0); ctx.bezierCurveTo(-airplane.wingWidth/3,-airplane.wingHeight/2,airplane.wingWidth/3,-airplane.wingHeight/2,airplane.wingWidth/2,0); ctx.bezierCurveTo(airplane.wingWidth/3,airplane.wingHeight/4,-airplane.wingWidth/3,airplane.wingHeight/4,-airplane.wingWidth/2,0); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); ctx.restore(); }
+
+    function drawPressureField(){ if (!showPressureCheckbox.checked) return; const gridSize=20; const circulation = parseFloat(circulationSlider.value)||0; for (let x=0;x<canvas.width;x+=gridSize){ for (let y=0;y<canvas.height;y+=gridSize){ const dx = x-airplane.x; const dy = y-airplane.y; const distance = Math.sqrt(dx*dx+dy*dy); let pressure = 1; if (distance<200){ const influence = Math.max(0,1-distance/200); if (Math.abs(dy) < airplane.wingHeight*2 && dx > -airplane.wingWidth && dx < airplane.wingWidth){ if (dy<0) pressure = 1 - influence * circulation * 0.5; else pressure = 1 + influence*0.3; } } const hue = pressure>1?240:0; const saturation = Math.abs(pressure-1)*100; const lightness = 50 + (1-pressure)*30; ctx.fillStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.3)`; ctx.fillRect(x,y,gridSize,gridSize); } } }
+
+    function updateDisplay(){ const windSpeed = parseFloat(windSpeedSlider.value||30); const wingAngle = parseFloat(wingAngleSlider.value||5); const circulation = parseFloat(circulationSlider.value||5.2); const particleCount = parseInt(particlesSlider.value||500); const airDensity = 1.225; const chordLength = 2.0; const kinematicViscosity = 1.5e-5; document.getElementById('wind-speed-value').textContent = windSpeed + ' m/s'; document.getElementById('wing-angle-value').textContent = wingAngle + '°'; document.getElementById('particles-value').textContent = particleCount; document.getElementById('circulation-value').textContent = circulation.toFixed(1) + ' m²/s'; const angleRad = wingAngle*Math.PI/180; const speedAbove = windSpeed*(1+0.3+circulation/10); const speedBelow = windSpeed*(1-0.1+Math.sin(angleRad)*0.2); document.getElementById('speed-above') && (document.getElementById('speed-above').textContent = speedAbove.toFixed(1) + ' m/s'); document.getElementById('speed-below') && (document.getElementById('speed-below').textContent = speedBelow.toFixed(1) + ' m/s'); const pressureDiff = 0.5 * airDensity * (speedAbove*speedAbove - speedBelow*speedBelow); document.getElementById('pressure-diff') && (document.getElementById('pressure-diff').textContent = Math.abs(pressureDiff).toFixed(0) + ' Pa'); const liftCoeff = 2*Math.PI*Math.sin(angleRad) + (circulation/(windSpeed*chordLength)); document.getElementById('lift-coefficient') && (document.getElementById('lift-coefficient').textContent = Math.max(0,liftCoeff).toFixed(2)); const reynolds = (windSpeed*chordLength)/kinematicViscosity; document.getElementById('reynolds') && (document.getElementById('reynolds').textContent = (reynolds/1e6).toFixed(1) + '×10⁶'); document.getElementById('aoa-display') && (document.getElementById('aoa-display').textContent = wingAngle.toFixed(1) + '°'); }
+
+    function animate(){ if (!isRunning) return; time += 0.02; const g = ctx.createLinearGradient(0,0,0,canvas.height); g.addColorStop(0,'#87CEEB'); g.addColorStop(1,'#E0F6FF'); ctx.fillStyle = g; ctx.fillRect(0,0,canvas.width,canvas.height); drawPressureField(); particles.forEach(p=>{ p.update(); p.draw(); }); drawAirplane(); updateDisplay(); animationFrame = requestAnimationFrame(animate); }
+
+    function startAnimation(){ if (!isRunning){ isRunning = true; animate(); } }
+    function pauseAnimation(){ isRunning = false; if (animationFrame) cancelAnimationFrame(animationFrame); }
+
+    function resizeCanvas(){ const container = document.querySelector('.animation-container'); if (!canvas) return; canvas.width = container.clientWidth; canvas.height = container.clientHeight; airplane.x = canvas.width/2; airplane.y = canvas.height/2; if (particles.length) initParticles(); }
+
+    // DOM ready
+    document.addEventListener('DOMContentLoaded', function(){
+      canvas = document.getElementById('canvas'); ctx = canvas.getContext('2d');
+      windSpeedSlider = document.getElementById('wind-speed'); wingAngleSlider = document.getElementById('wing-angle'); circulationSlider = document.getElementById('circulation'); particlesSlider = document.getElementById('particles');
+      showPressureCheckbox = document.getElementById('show-pressure'); showParticlesCheckbox = document.getElementById('show-particles');
+
+      // wire events
+      windSpeedSlider.addEventListener('input', updateDisplay);
+      wingAngleSlider.addEventListener('input', updateDisplay);
+      circulationSlider.addEventListener('input', updateDisplay);
+      particlesSlider.addEventListener('input', ()=>{ initParticles(); updateDisplay(); });
+
+      document.getElementById('playPauseBtn').addEventListener('click', function(){ if (isRunning){ pauseAnimation(); this.textContent = '⏯️'; } else { startAnimation(); this.textContent = '⏸️'; } });
+      document.getElementById('closeBtn').addEventListener('click', function(){ try{ if (window.parent && window.parent.clearAnimation) window.parent.clearAnimation(); }catch(e){} });
+
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas(); initParticles(); updateDisplay(); startAnimation(); document.getElementById('playPauseBtn').textContent = '⏸️';
+    });
+
+  })();
+  </script>
+
+</body>
+</html>

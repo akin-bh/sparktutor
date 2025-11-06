@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>📊 Area Under Curve — Integration Visualized</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    :root { --bg:#0b0f14; --panel:#141a21; --text:#e8eef6; --muted:#9bb0c3; --accent:#48a6ff; }
+    *{box-sizing:border-box} html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial;}
+    .wrap{display:grid;grid-template-columns:260px 1fr;grid-template-rows:auto 1fr;gap:10px;padding:10px;height:100%}
+    header{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 14px}
+    header h1{font-size:16px;margin:0;font-weight:600} header .small{color:var(--muted);font-size:12px;margin-left:8px}
+    .panel{background:var(--panel);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;overflow:auto}
+    canvas{width:100%;height:100%;display:block;background:linear-gradient(180deg,#1a1f28,#0f141b);border:1px solid rgba(255,255,255,0.08);border-radius:12px}
+    .control{margin:10px 0 16px} .control label{font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:space-between}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px} .row{display:flex;gap:8px;align-items:center}
+    button{background:#0f141b;border:1px solid rgba(255,255,255,0.09);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px;cursor:pointer}
+    button.primary{background:var(--accent);color:#001428;border:none}
+    .kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px} .kpi div{background:#0f141b;border:1px solid rgba(255,255,255,0.08);padding:10px;border-radius:10px;font-size:12px}
+    .kpi .v{font-size:16px;color:#3bd16f;font-weight:600}
+    .kpi .error{color:#ff6b6b}
+    .tag{font-size:11px;color:var(--muted)}
+    .equation{background:#1a1f28;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:12px;margin:8px 0;font-family:monospace}
+    .equation .title{color:var(--accent);font-size:11px;margin-bottom:6px}
+    .equation .formula{color:var(--text);font-size:14px}
+    input[type="range"]{width:100%;accent-color:var(--accent)}
+    select{background:var(--panel);border:1px solid rgba(255,255,255,0.09);color:var(--text);border-radius:6px;padding:4px}
+    /* small consistent topbar for animations */
+    .anim-topbar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.92);
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      z-index: 30;
+      font-weight: 700;
+    }
+    .anim-topbar .anim-title { color: #48a6ff; font-size: 14px; }
+    .anim-topbar .anim-controls { display:flex; gap:8px; align-items:center; }
+    .anim-topbar .mini-btn { background:#f3f4f6; border:none; padding:8px 10px; border-radius:8px; cursor:pointer; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Integration as Area Under Curve <span class="small">Riemann sums → ∫f(x)dx</span></h1>
+    <div class="row">
+      <button id="btn-animate" class="primary">Animate n→∞</button>
+      <button id="btn-pause">Pause</button>
+      <button id="btn-reset">Reset</button>
+    </div>
+  </header>
+
+  <aside class="panel">
+    <div class="control">
+      <label>Function f(x)</label>
+      <select id="sel-function">
+        <option value="x2">x²</option>
+        <option value="sin">sin(x)</option>
+        <option value="cos">cos(x)</option>
+        <option value="exp">e^x</option>
+        <option value="sqrt">√x</option>
+        <option value="cubic">x³</option>
+      </select>
+    </div>
+    
+    <div class="control">
+      <label>Lower bound (a) <span><span id="lbl-a">0</span></span></label>
+      <input id="rng-a" type="range" min="-3" max="3" step="0.1" value="0">
+    </div>
+    
+    <div class="control">
+      <label>Upper bound (b) <span><span id="lbl-b">2</span></span></label>
+      <input id="rng-b" type="range" min="-3" max="5" step="0.1" value="2">
+    </div>
+    
+    <div class="control">
+      <label>Rectangles (n) <span><span id="lbl-n">10</span></span></label>
+      <input id="rng-n" type="range" min="1" max="200" step="1" value="10">
+    </div>
+    
+    <div class="grid">
+      <label class="row"><input type="checkbox" id="chk-left" checked>&nbsp;Left sum</label>
+      <label class="row"><input type="checkbox" id="chk-right">&nbsp;Right sum</label>
+      <label class="row"><input type="checkbox" id="chk-mid">&nbsp;Midpoint</label>
+      <label class="row"><input type="checkbox" id="chk-trap">&nbsp;Trapezoid</label>
+    </div>
+
+    <div class="equation">
+      <div class="title">RIEMANN SUM</div>
+      <div class="formula">∑ f(xᵢ) Δx</div>
+      <div class="formula">Δx = (b-a)/n = <span id="eq-delta">0.20</span></div>
+      <div class="formula" style="margin-top:8px">As n→∞: Sum → ∫f(x)dx</div>
+    </div>
+
+    <div class="kpi">
+      <div>Riemann Sum<br><span id="kpi-riemann" class="v">0.000</span></div>
+      <div>Exact Integral<br><span id="kpi-exact" class="v">0.000</span></div>
+      <div>Error<br><span id="kpi-error" class="error">0.000</span></div>
+      <div>Error %<br><span id="kpi-error-pct" class="error">0.0%</span></div>
+    </div>
+    
+    <div class="tag" style="margin-top:8px">
+      Tip: Watch rectangles get thinner as n increases! Try different functions and see convergence to exact integral.
+    </div>
+  </aside>
+
+  <main class="panel" style="padding:0; position:relative">
+    <div class="anim-topbar" role="toolbar" aria-label="Animation controls">
+      <div class="anim-title">📊 Area Under Curve</div>
+      <div class="anim-controls">
+        <button class="mini-btn" id="playPauseBtn">⏯️</button>
+        <button class="mini-btn" id="closeBtn">✖</button>
+      </div>
+    </div>
+    <canvas id="cv"></canvas>
+  </main>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('cv');
+  const ctx = canvas.getContext('2d');
+  let W=1280,H=720,DPR=Math.max(1,Math.min(2,window.devicePixelRatio||1));
+  
+  function resize(){
+    const r=canvas.getBoundingClientRect();
+    W=Math.max(640,Math.floor(r.width)); H=Math.max(360,Math.floor(r.height));
+    canvas.width=Math.floor(W*DPR); canvas.height=Math.floor(H*DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  new ResizeObserver(resize).observe(canvas);
+
+  // UI Elements
+  const functionEl = document.getElementById('sel-function');
+  const aEl = document.getElementById('rng-a');
+  const bEl = document.getElementById('rng-b');
+  const nEl = document.getElementById('rng-n');
+  const leftEl = document.getElementById('chk-left');
+  const rightEl = document.getElementById('chk-right');
+  const midEl = document.getElementById('chk-mid');
+  const trapEl = document.getElementById('chk-trap');
+  
+  const lblA = document.getElementById('lbl-a');
+  const lblB = document.getElementById('lbl-b');
+  const lblN = document.getElementById('lbl-n');
+
+  // Animation state
+  let animating = false;
+  let animationTarget = 200;
+  let animationSpeed = 2;
+
+  // Update labels
+  function updateLabels() {
+    lblA.textContent = aEl.value;
+    lblB.textContent = bEl.value;
+    lblN.textContent = nEl.value;
+    
+    const a = parseFloat(aEl.value);
+    const b = parseFloat(bEl.value);
+    const n = parseInt(nEl.value);
+    const delta = (b - a) / n;
+    document.getElementById('eq-delta').textContent = delta.toFixed(3);
+  }
+  
+  [aEl, bEl, nEl].forEach(e => e.addEventListener('input', updateLabels));
+  functionEl.addEventListener('change', updateLabels);
+  updateLabels();
+
+  // Controls
+  document.getElementById('btn-animate').onclick = () => {
+    animating = !animating;
+    document.getElementById('btn-animate').textContent = animating ? 'Stop Animation' : 'Animate n→∞';
+  };
+  
+  document.getElementById('btn-pause').onclick = () => {
+    animating = false;
+    document.getElementById('btn-animate').textContent = 'Animate n→∞';
+  };
+  
+  document.getElementById('btn-reset').onclick = () => {
+    animating = false;
+    nEl.value = 10;
+    updateLabels();
+    document.getElementById('btn-animate').textContent = 'Animate n→∞';
+  };
+
+  // Mathematical functions
+  function f(x, funcType) {
+    switch(funcType) {
+      case 'x2': return x * x;
+      case 'sin': return 2 + Math.sin(x * Math.PI);
+      case 'cos': return 2 + Math.cos(x * Math.PI);
+      case 'exp': return Math.exp(x * 0.5);
+      case 'sqrt': return x >= 0 ? Math.sqrt(x) : 0;
+      case 'cubic': return x * x * x * 0.3 + 2;
+      default: return x * x;
+    }
+  }
+
+  // Exact integrals (for comparison)
+  function exactIntegral(a, b, funcType) {
+    switch(funcType) {
+      case 'x2': return (b*b*b - a*a*a) / 3;
+      case 'sin': return 2*(b-a) - (Math.cos(b*Math.PI) - Math.cos(a*Math.PI))/Math.PI;
+      case 'cos': return 2*(b-a) + (Math.sin(b*Math.PI) - Math.sin(a*Math.PI))/Math.PI;
+      case 'exp': return 2*(Math.exp(b*0.5) - Math.exp(a*0.5));
+      case 'sqrt': return b >= 0 ? (2/3)*(Math.pow(b, 1.5) - (a >= 0 ? Math.pow(a, 1.5) : 0)) : 0;
+      case 'cubic': return 0.3*(b*b*b*b - a*a*a*a)/4 + 2*(b-a);
+      default: return (b*b*b - a*a*a) / 3;
+    }
+  }
+
+  // Coordinate system
+  function toScreen(x, y) {
+    const margin = 60;
+    const plotW = W - 2 * margin;
+    const plotH = H - 2 * margin;
+    
+    const xRange = 6; // -3 to 3
+    const yRange = 8; // 0 to 8
+    
+    const screenX = margin + ((x + 3) / xRange) * plotW;
+    const screenY = H - margin - (y / yRange) * plotH;
+    
+    return [screenX, screenY];
+  }
+
+  function fromScreen(screenX, screenY) {
+    const margin = 60;
+    const plotW = W - 2 * margin;
+    const plotH = H - 2 * margin;
+    
+    const xRange = 6;
+    const yRange = 8;
+    
+    const x = ((screenX - margin) / plotW) * xRange - 3;
+    const y = ((H - margin - screenY) / plotH) * yRange;
+    
+    return [x, y];
+  }
+
+  // Drawing functions
+  function drawAxes() {
+    ctx.save();
+    ctx.strokeStyle = '#444';
+    ctx.lineWidth = 1;
+    
+    // Grid
+    for (let x = -3; x <= 3; x += 0.5) {
+      const [sx, sy] = toScreen(x, 0);
+      const [sx2, sy2] = toScreen(x, 8);
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx2, sy2);
+      ctx.stroke();
+    }
+    
+    for (let y = 0; y <= 8; y += 1) {
+      const [sx, sy] = toScreen(-3, y);
+      const [sx2, sy2] = toScreen(3, y);
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx2, sy2);
+      ctx.stroke();
+    }
+    
+    // Main axes
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 2;
+    
+    // X-axis
+    const [x0, y0] = toScreen(-3, 0);
+    const [x1, y1] = toScreen(3, 0);
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+    
+    // Y-axis
+    const [x2, y2] = toScreen(0, 0);
+    const [x3, y3] = toScreen(0, 8);
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x3, y3);
+    ctx.stroke();
+    
+    // Labels
+    ctx.fillStyle = '#999';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    
+    for (let x = -3; x <= 3; x++) {
+      if (x !== 0) {
+        const [sx, sy] = toScreen(x, 0);
+        ctx.fillText(x.toString(), sx, sy + 20);
+      }
+    }
+    
+    ctx.textAlign = 'right';
+    for (let y = 1; y <= 8; y++) {
+      const [sx, sy] = toScreen(0, y);
+      ctx.fillText(y.toString(), sx - 10, sy + 5);
+    }
+    
+    ctx.restore();
+  }
+
+  function drawFunction() {
+    const funcType = functionEl.value;
+    
+    ctx.save();
+    ctx.strokeStyle = '#48a6ff';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    
+    let first = true;
+    for (let x = -3; x <= 3; x += 0.02) {
+      const y = f(x, funcType);
+      const [sx, sy] = toScreen(x, y);
+      
+      if (first) {
+        ctx.moveTo(sx, sy);
+        first = false;
+      } else {
+        ctx.lineTo(sx, sy);
+      }
+    }
+    
+    ctx.stroke();
+    
+    // Function label
+    ctx.fillStyle = '#48a6ff';
+    ctx.font = '16px sans-serif';
+    ctx.textAlign = 'left';
+    let funcName = functionEl.options[functionEl.selectedIndex].text;
+    ctx.fillText(`f(x) = ${funcName}`, 20, 30);
+    
+    ctx.restore();
+  }
+
+  function drawRiemannSum() {
+    const a = parseFloat(aEl.value);
+    const b = parseFloat(bEl.value);
+    const n = parseInt(nEl.value);
+    const funcType = functionEl.value;
+    
+    if (a >= b || n <= 0) return;
+    
+    const dx = (b - a) / n;
+    let sum = 0;
+    
+    ctx.save();
+    
+    // Integration bounds
+    const [aScreen] = toScreen(a, 0);
+    const [bScreen] = toScreen(b, 0);
+    ctx.strokeStyle = '#ff6b6b';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(aScreen, toScreen(a, 0)[1]);
+    ctx.lineTo(aScreen, toScreen(a, 8)[1]);
+    ctx.moveTo(bScreen, toScreen(b, 0)[1]);
+    ctx.lineTo(bScreen, toScreen(b, 8)[1]);
+    ctx.stroke();
+    
+    // Rectangles
+    for (let i = 0; i < n; i++) {
+      const x0 = a + i * dx;
+      const x1 = a + (i + 1) * dx;
+      
+      let height = 0;
+      let color = '#ff6b6b40';
+      
+      if (leftEl.checked) {
+        height = f(x0, funcType);
+        color = '#ff6b6b40';
+        sum += height * dx;
+      } else if (rightEl.checked) {
+        height = f(x1, funcType);
+        color = '#44ff4440';
+        sum += height * dx;
+      } else if (midEl.checked) {
+        const xMid = (x0 + x1) / 2;
+        height = f(xMid, funcType);
+        color = '#ffff4440';
+        sum += height * dx;
+      } else if (trapEl.checked) {
+        const h0 = f(x0, funcType);
+        const h1 = f(x1, funcType);
+        height = Math.max(h0, h1);
+        color = '#ff44ff40';
+        sum += (h0 + h1) * dx / 2;
+      } else {
+        height = f(x0, funcType); // default to left
+        sum += height * dx;
+      }
+      
+      const [sx0, sy0] = toScreen(x0, 0);
+      const [sx1, sy1] = toScreen(x1, height);
+      
+      // Rectangle
+      ctx.fillStyle = color;
+      ctx.fillRect(sx0, sy1, sx1 - sx0, sy0 - sy1);
+      
+      // Rectangle outline
+      ctx.strokeStyle = color.replace('40', 'aa');
+      ctx.lineWidth = 1;
+      ctx.strokeRect(sx0, sy1, sx1 - sx0, sy0 - sy1);
+    }
+    
+    ctx.restore();
+    
+    // Update displays
+    const exact = exactIntegral(a, b, funcType);
+    const error = Math.abs(sum - exact);
+    const errorPct = exact !== 0 ? (error / Math.abs(exact)) * 100 : 0;
+    
+    document.getElementById('kpi-riemann').textContent = sum.toFixed(3);
+    document.getElementById('kpi-exact').textContent = exact.toFixed(3);
+    document.getElementById('kpi-error').textContent = error.toFixed(3);
+    document.getElementById('kpi-error-pct').textContent = errorPct.toFixed(1) + '%';
+  }
+
+  function render() {
+    ctx.clearRect(0, 0, W, H);
+    
+    drawAxes();
+    drawRiemannSum();
+    drawFunction();
+    
+    // Animation
+    if (animating) {
+      let currentN = parseInt(nEl.value);
+      if (currentN < animationTarget) {
+        nEl.value = Math.min(animationTarget, currentN + animationSpeed);
+        updateLabels();
+      } else {
+        animating = false;
+        document.getElementById('btn-animate').textContent = 'Animate n→∞';
+      }
+    }
+    
+    requestAnimationFrame(render);
+  }
+
+  // Initialize
+  resize();
+  render();
+})();
+
+</script>
+
+<script>
+  (function(){
+    const play = document.getElementById('playPauseBtn');
+    const close = document.getElementById('closeBtn');
+    if (play) play.addEventListener('click', () => { const btn = document.querySelector('#btn-animate, #btn-start'); if (btn) btn.click(); else window.isRunning = !window.isRunning; });
+    if (close) close.addEventListener('click', () => { try { if (window.parent && window.parent !== window) { if (window.parent.clearAnimation) { window.parent.clearAnimation(); return; } } } catch(e){ console.warn('close action failed', e); } });
+  })();
+</script>
+
+</body>
+</html>
