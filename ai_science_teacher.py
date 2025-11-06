@@ -24,7 +24,7 @@ else:
 @app.route("/")
 def index():
     """Serve the AI Science Teacher interface"""
-    return send_file("ai_teacher_interface.html")
+    return send_file("index.html")
 
 
 @app.route("/debug")
