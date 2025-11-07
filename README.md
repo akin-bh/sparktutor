@@ -1,4 +1,12 @@
-# SparkTutor
+<div align="center">
+  
+  <img src="public/images/logo/logo.png" alt="SparkTutor Logo" width="150"/>
+  
+  # SparkTutor
+  
+  <img src="public/images/photo/app.jpeg" alt="Apps Competition Logo" width="200"/>
+  
+</div>
 
 ## Project Overview
 
