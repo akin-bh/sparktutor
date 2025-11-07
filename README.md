@@ -6,6 +6,12 @@
   
   <img src="public/images/photo/app.jpeg" alt="Apps Competition Logo" width="200"/>
   
+  ### 🎥 Watch Demo Video
+  
+  [![SparkTutor Demo](https://img.youtube.com/vi/4j6ke9dORpE/maxresdefault.jpg)](https://www.youtube.com/watch?v=4j6ke9dORpE)
+  
+  *Click the image above to watch our interactive demo on YouTube*
+  
 </div>
 
 ## Project Overview
