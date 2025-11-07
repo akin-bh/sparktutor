@@ -112,9 +112,6 @@ Use the sidebar to select animations or adjust parameters without voice commands
 
 
 
-### License
-MIT License - see LICENSE file for details.
-
 ---
 
 Built for UNM App Contest 2025
